@@ -1,0 +1,9 @@
+{
+  "samples": 2570,
+  "benign": 1285,
+  "malicious": 1285,
+  "min_sequence_length": 2,
+  "median_sequence_length": 37.0,
+  "max_sequence_length": 175,
+  "unique_apis": 291
+}

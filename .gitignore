@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.pkl
+*.pt
+*.tmp
+*.aux
+*.log
+*.out
+*.blg
+*.bbl
+*.synctex.gz
+BETH_Dataset/
+external_dmbd/
+external_malbehavd/MalBehavD-V1-dataset.csv
+pipeline_output/
+.venv/
+venv/
