@@ -6,3 +6,4 @@ seaborn==0.13.2
 tqdm==4.67.1
 psutil==7.0.0
 torch==2.8.0
+xgboost==3.2.0

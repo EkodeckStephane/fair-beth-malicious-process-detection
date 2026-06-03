@@ -29,6 +29,7 @@ The repository includes only derived metrics, plots, and reproducibility scripts
 - `scripts/evaluate.py`: computes BETH metrics, thresholds, confidence intervals, and figures.
 - `scripts/external_malbehavd_validation.py`: runs external MalBehavD-V1 validation.
 - `scripts/beth_limit_lifting_analyses.py`: runs attribution, prefix, cost, stress, and split-robustness audits on BETH.
+- `scripts/tabular_sota_and_calibration_audit.py`: runs additional tabular baselines, including XGBoost when available, and writes calibration audit outputs.
 
 ## Reproducibility Notes
 
@@ -54,6 +55,14 @@ Run the additional BETH audits from the repository root after the main pipeline 
 $env:BETH_DATA_DIR="C:\path\to\BETH_Dataset"
 $env:FAIR_BETH_PIPELINE_OUTPUT="C:\path\to\pipeline_output"
 python scripts/beth_limit_lifting_analyses.py
+```
+
+Run the additional tabular baseline and calibration audit:
+
+```powershell
+$env:FAIR_BETH_PIPELINE_OUTPUT="C:\path\to\pipeline_output"
+$env:FAIR_BETH_AUDIT_OUTPUT="C:\path\to\additional_audits"
+python scripts/tabular_sota_and_calibration_audit.py
 ```
 
 Run the external MalBehavD-V1 validation after downloading the public CSV and adjusting the path if needed:
