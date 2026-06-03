@@ -543,7 +543,7 @@ LogReg & 0.7698 & 0.8024 & 0.7059 & 0.0992 & 0.1739 & [0.0847, 0.2501] & 5 & 109
 \end{tabular}
 \end{table*}
 
-These comparisons sharpen the claim boundary. FAIR-BETH should not be read as evidence that one Random Forest configuration is uniquely optimal. It shows that a family of direct tabular learners is competitive and that score-level fusion does not earn its complexity under the fixed protocol. The comparison with the original BETH paper is necessarily qualitative: Highnam et al. introduced BETH for unsupervised anomaly and out-of-distribution research and reported initial anomaly-detection benchmarks on a subset \cite{highnam2021}, whereas the present work aggregates processes, constructs a supplementary development pool, and evaluates a fixed official test split. The MalBehavD-V1 comparison is also not a state-of-the-art claim: API-MalDetect and related deep API-call models target the same public dataset family \cite{maniriho2023}, while this paper uses MalBehavD-V1 to test whether the FAIR-X protocol can be executed on a second behavioral schema.
+These comparisons sharpen the claim boundary. FAIR-BETH should not be read as evidence that one Random Forest configuration is uniquely optimal. It shows that a family of direct tabular learners is competitive and that score-level fusion does not earn its complexity under the fixed protocol. The comparison with the original BETH paper is necessarily qualitative: Highnam et al. report event-level OoD AUROC on an initial preprocessed subset for robust covariance (0.519), one-class SVM (0.605), iForest (0.850), and VAE+DoSE-SVM (0.698) \cite{highnam2021}. Those results are not directly commensurable with the present process-level F1/AP/AUC tables because this paper changes the unit of analysis from events to aggregated processes, introduces supplementary development positives for supervised threshold selection, and evaluates fixed process-level decisions on the official test file. The MalBehavD-V1 comparison is also not a state-of-the-art claim: API-MalDetect and related deep API-call models target the same public dataset family \cite{maniriho2023}, while this paper uses MalBehavD-V1 to test whether the FAIR-X protocol can be executed on a second behavioral schema.
 
 \subsection{FAIR-BETH Diagnostic Results}
 
@@ -622,7 +622,7 @@ This is a practical lesson: a validation set can be stratified but still too sma
 
 \subsection{Calibration Audit}
 
-Table~\ref{tab:calibration_audit} reports expected calibration error and Brier score on the official test split for the supervised tabular models. Figure~\ref{fig:reliability} gives the corresponding reliability diagrams. The values are poor for most models: TabRF has ECE 0.4984 and Brier score 0.4506, while MetaRF has ECE 0.5007 and Brier score 0.4621. Logistic regression has the lowest ECE among the audited models but very weak thresholded recall under the main policy. This confirms that the calibrated outputs should be interpreted as scores for thresholding, not as reliable posterior probabilities.
+Table~\ref{tab:calibration_audit} reports expected calibration error and Brier score on the official test split for the supervised tabular models. Figure~\ref{fig:reliability} gives the corresponding reliability diagrams. ECE values near 0.50 indicate near-null calibration: calibrated scores carry no reliable probability interpretation on the BETH test distribution. TabRF has ECE 0.4984 and Brier score 0.4506, while MetaRF has ECE 0.5007 and Brier score 0.4621. Platt scaling normalizes score ranges but does not produce meaningful posterior estimates under this prevalence mismatch. Logistic regression has the lowest ECE among the audited models (0.2905), but its validation-FPR F1 is only 0.1739. Calibration quality and operational detection quality therefore diverge, and the final claims treat model outputs as scores for thresholding rather than reliable posterior probabilities.
 
 \begin{table}[t]
 \centering
@@ -904,6 +904,10 @@ The experiment does not support the statement that a hybrid AI pipeline improves
 
 Negative results are valuable in security machine learning because overly optimistic claims can lead to unsafe deployments. A detector that looks good only because a baseline used a weaker threshold policy is not an operational improvement. A semantic branch that depends on undocumented mapping assumptions may improve interpretability while reducing reproducibility. A calibrated score trained on six positives may look probabilistic but not behave as a reliable probability under deployment shift. Reporting these failures improves the field by narrowing the space of defensible claims.
 
+\subsection{The ExtraTrees Ranking--Decision Paradox}
+
+ExtraTrees is the clearest illustration of why FAIR-X separates ranking metrics from thresholded decisions. It obtains the best ranking metrics in the additional audit, with AUC 0.7973 and AP 0.8572, so it would be the apparent winner under a ranking-only comparison. Under the validation-FPR threshold, however, it produces only two false positives but misses 66 malicious processes, yielding recall 0.4545 and F1 0.6180. The model ranks many malicious processes above benign ones, but the validation-derived operating point is too conservative for the shifted official test distribution. This is not a contradiction; it is the exact distinction between score ordering and operational action. A paper reporting only AUC/AP would overstate ExtraTrees, while a paper reporting only F1 would hide its strong ranking behavior. FAIR-X requires both views and makes the threshold policy part of the scientific claim.
+
 \subsection{Implications for Future Ransomware Benchmarks}
 
 Future behavioral endpoint-security benchmarks should provide:
@@ -1110,7 +1114,7 @@ The code performs the following sequence: (i) read BETH CSV files; (ii) exclude 
 \section{Detailed Interpretation of the Result Table}
 \label{app:interpretation}
 
-The full result table can be read in three passes. The first pass is ranking. IF-Platt, GRUAE-Platt, and SimpleAvg all have AUC below 0.5, indicating that they rank many benign test processes above malicious test processes. ScoreRF improves the ranking to AUC 0.5960, but this remains weak. TabRF and MetaRF are the only models with AUC above 0.70. This ranking pass shows that the raw tabular representation is necessary.
+The full result table can be read in three passes. The first pass is ranking. IF-Platt, GRUAE-Platt, and SimpleAvg all have AUC below 0.5, indicating that they rank many benign test processes above malicious test processes. ScoreRF improves the ranking to AUC 0.5960, but this remains weak. Direct tabular learners such as ExtraTrees, MLP, RF-500, TabRF, and MetaRF have stronger AUC values. This ranking pass shows that the raw tabular representation is necessary, but it does not by itself identify the best operating point.
 
 The second pass is thresholded behavior. Under the validation-FPR budget, IF-Platt and GRUAE-Platt produce very low recall. Their thresholds are conservative because the validation fold is mostly benign. SimpleAvg inherits the same weakness. ScoreRF increases recall to 0.3636, but still misses 77 malicious processes. TabRF reaches recall 0.6942 with precision 0.7500. MetaRF reaches recall 0.6281 with precision 0.7308. This pass shows that the operationally useful region is reached only by supervised tabular learning.
 
