@@ -30,6 +30,8 @@ The repository includes only derived metrics, plots, and reproducibility scripts
 - `scripts/external_malbehavd_validation.py`: runs external MalBehavD-V1 validation.
 - `scripts/beth_limit_lifting_analyses.py`: runs attribution, prefix, cost, stress, and split-robustness audits on BETH.
 - `scripts/tabular_sota_and_calibration_audit.py`: runs additional tabular baselines, including XGBoost when available, and writes calibration audit outputs.
+- `scripts/robust_threshold_validation.py`: selects 50 cross-fitted RF-500 thresholds over all BETH development positives and performs one locked-threshold test evaluation.
+- `scripts/sequence_capacity_ablation.py`: compares target-copy-free GRU and LSTM next-event predictors across recurrent capacities.
 
 ## Reproducibility Notes
 
@@ -63,6 +65,20 @@ Run the additional tabular baseline and calibration audit:
 $env:FAIR_BETH_PIPELINE_OUTPUT="C:\path\to\pipeline_output"
 $env:FAIR_BETH_AUDIT_OUTPUT="C:\path\to\additional_audits"
 python scripts/tabular_sota_and_calibration_audit.py
+```
+
+Run the repeated cross-fitted threshold audit:
+
+```powershell
+$env:FAIR_BETH_PIPELINE_OUTPUT="C:\path\to\pipeline_output"
+python scripts/robust_threshold_validation.py
+```
+
+Run the target-copy-free sequence capacity audit:
+
+```powershell
+$env:FAIR_BETH_PIPELINE_OUTPUT="C:\path\to\pipeline_output"
+python scripts/sequence_capacity_ablation.py
 ```
 
 Run the external MalBehavD-V1 validation after downloading the public CSV and adjusting the path if needed:
