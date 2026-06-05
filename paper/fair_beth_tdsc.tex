@@ -40,11 +40,11 @@ Author Contributions: Conceptualization, methodology, software, validation, form
 \maketitle
 
 \begin{abstract}
-Behavioral malicious-process studies often report ranking metrics or thresholded scores without establishing equivalent validation access or whether the operating point survives distribution shift. We introduce FAIR-BETH, an executable evaluation contract that fixes data access, label exclusion, feature fitting, calibration, threshold selection, baseline parity, uncertainty reporting, and fusion diagnostics before official-test evaluation. BETH provides a demanding case: after process aggregation, its official training and validation files contain no malicious processes, whereas 121 of 198 official-test processes are malicious. We construct an enriched development pool from supplementary BETH files while preserving the official test as an isolated final evaluation. Under a common validation-FPR policy, RF-500 and TabRF obtain F1 scores of 0.7241 and 0.7210, while MetaRF reaches 0.6756; score fusion provides no evidence of improvement over direct tabular learning. A repeated five-fold audit fixes 50 thresholds from all 29 development positives without synthetic enrichment. Their median is 0.006 (IQR 0.004--0.006), yet the locked 5\% development-FPR threshold produces 32.47\% FPR and F1 0.6964 on test, measuring threshold non-transfer. ExtraTrees illustrates the ranking--decision gap: it has the highest AUC and AP (0.7973 and 0.8572) but only F1 0.6180 at its locked operating point. Target-copy-free GRU/LSTM ablations remain weak, bounding rather than generalizing the sequence-model conclusion. Applying the contract to MalBehavD-V1 yields repeated-split median F1 0.9533. FAIR-BETH provides a reproducible protocol for distinguishing ranking quality, deployable decisions, and unsupported architectural claims under security-data shift.
+Behavioral malicious-process studies can reach different conclusions when models receive different validation access, threshold policies, or baseline treatment. We introduce FAIR-X, an executable evaluation contract that fixes these choices before test evaluation, and instantiate it as FAIR-BETH on process-aggregated BETH endpoint events. BETH is a demanding case: the official training and validation files contain no malicious processes after aggregation, whereas 121 of 198 official-test processes are malicious. We therefore build a development pool from supplementary BETH files while preserving the official test as an isolated final evaluation. Under one validation-derived false-positive-rate policy, direct tabular Random Forests obtain F1 scores of 0.7241 and 0.7210, while a tabular-plus-anomaly-score fusion model reaches 0.6756. A repeated cross-fitted audit uses all 29 development positives without synthetic enrichment; its locked threshold yields F1 0.6964 but expands a 5\% development false-positive budget to 32.47\% on test. ExtraTrees further demonstrates the ranking--decision distinction: it has the highest AUC and AP, yet F1 0.6180 at its locked operating point. Recurrent next-event ablations remain weak, but the conclusion is restricted to the tested objectives and representations. On MalBehavD-V1, the same contract yields repeated-split median F1 0.9533. FAIR-BETH thus makes fusion utility, threshold transfer, uncertainty, and claim boundaries directly auditable under distribution shift.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Malicious-process detection, ransomware-oriented defense, behavioral analysis, BETH dataset, anomaly detection, calibration, threshold selection, distribution shift, Random Forest, GRU autoencoder.
+Malicious-process detection, behavioral analysis, BETH dataset, anomaly detection, calibration, threshold selection, distribution shift, Random Forest, recurrent neural network.
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -56,23 +56,22 @@ That conversion is also a recurring weakness in security-machine-learning evalua
 
 BETH makes this gap measurable \cite{highnam2021}. It contains low-level endpoint events collected across multiple hosts and was designed for anomaly detection and out-of-distribution analysis. After the process-level aggregation used here, the official training and validation files contain no malicious processes, while 121 of the 198 official-test processes are malicious. An ordinary IID validation interpretation is therefore untenable: supervised development requires supplementary positives, and a threshold selected under the development distribution cannot be assumed to preserve its false-positive rate on the official test.
 
-We address this problem with FAIR-BETH, an instance of the FAIR-X evaluation contract for behavioral security datasets. Before official-test evaluation, the contract fixes which records each stage may access, how labels and feature vocabularies are isolated, which threshold policies apply to every model, which non-hybrid baselines must be matched, and which uncertainty and failure disclosures accompany the point estimates. It further defines the tabular-dominance gap, score-compression gap, and threshold sensitivity so that the claim ``fusion helps'' becomes numerically falsifiable. The central research question is not which architecture attains the largest isolated metric, but which conclusions remain valid when ranking, calibration, threshold selection, baseline strength, and distribution shift are audited together.
+We address this problem with FAIR-X, a dataset-independent evaluation contract for behavioral security learning, and FAIR-BETH, its concrete instantiation for process-aggregated BETH data. Before test evaluation, FAIR-X fixes record access, label and vocabulary isolation, threshold policies, baseline parity, uncertainty reporting, and failure disclosure. FAIR-BETH adds three quantitative diagnostics---the tabular-dominance gap, score-compression gap, and threshold sensitivity---so that the claim ``fusion helps'' becomes falsifiable rather than architectural rhetoric. The central research question is not which model attains the largest isolated metric, but which conclusions survive a common operating policy and explicit distribution-shift audit.
 
-The contributions are:
+The paper makes four contributions:
 \begin{itemize}
-    \item \textbf{Executable evaluation contract:} FAIR-BETH fixes development/test access, label and vocabulary isolation, calibration, two common threshold policies, baseline parity, and uncertainty reporting. MITRE ATT\&CK remains response context because BETH supplies no validated technique labels.
-    \item \textbf{Fusion diagnostics and strong baselines:} the tabular-dominance, score-compression, and threshold-sensitivity gaps compare score-only fusion, direct tabular learning, and tabular-plus-score fusion against ExtraTrees, gradient boosting, an MLP, XGBoost, and RF-500 under identical policies.
-    \item \textbf{Threshold robustness without synthetic positives:} repeated five-fold validation uses all 29 development positives to fix 50 thresholds before test access. The narrow threshold distribution but large test-FPR expansion separates sampling stability from distributional transfer.
-    \item \textbf{Bounded sequence-model audit:} target-copy-free next-event GRU and LSTM models vary cell type, depth, and capacity, preventing a broad architectural conclusion from one lightweight reconstruction model.
-    \item \textbf{Externality and operational-boundary audits:} MalBehavD-V1 tests protocol portability, while BETH attribution, prefix, cost, feature-stress, host-disjoint, and temporal analyses identify which conclusions do and do not support deployment.
+    \item \textbf{An executable evaluation contract.} FAIR-X specifies development/test access, feature fitting, calibration, common threshold policies, baseline parity, uncertainty reporting, and claim disclosure. FAIR-BETH implements this contract without using ATT\&CK labels as predictors because BETH provides no validated technique annotations.
+    \item \textbf{Falsifiable fusion diagnostics.} Three gaps compare score-only learning, direct tabular learning, and tabular-plus-score fusion against strong tree, boosting, and neural tabular baselines under identical policies.
+    \item \textbf{Threshold and architecture stress tests.} Repeated cross-fitted threshold selection separates sampling stability from threshold transfer, while target-copy-free GRU and LSTM ablations bound the sequence-model result without generalizing beyond the tested objectives.
+    \item \textbf{External and operational-boundary evidence.} MalBehavD-V1 tests protocol portability; BETH prefix, attribution, cost, feature-stress, host-disjoint, and temporal audits identify the evidence required before deployment claims are justified.
 \end{itemize}
 
-The results support a deliberately bounded conclusion. Direct tabular forests provide the strongest thresholded BETH decisions in this study; score fusion does not demonstrate added value; and even a numerically stable development threshold does not preserve its false-positive budget under the official shift. The remainder of the paper formalizes the contract, documents the data and models, reports the comparative and robustness audits, and states the resulting claim boundaries.
+The results support a deliberately bounded conclusion. Direct tabular forests provide the strongest thresholded BETH decisions in this study; score fusion does not demonstrate added value; and a numerically stable development threshold does not preserve its false-positive budget under the official shift. Sections~\ref{sec:background} and~\ref{sec:related} establish the problem and prior work. Sections~\ref{sec:formal}--\ref{sec:thresholds} define the contract, data, models, and evaluation. Sections~\ref{sec:results}--\ref{sec:limit_lifting} report the main, external, and robustness results. The final sections integrate failure analysis, validity, reproducibility, and claim boundaries.
 
 \section{Background and Problem Setting}
 \label{sec:background}
 
-\subsection{Behavioral Ransomware Detection}
+\subsection{Behavioral Malicious-Process Detection}
 
 Behavioral detection monitors actions rather than static bytes. A ransomware process may create or modify many files, enumerate directories, spawn child processes, open network connections, or invoke scripting interpreters. These actions are not unique to malware: backup agents, compilers, indexers, installers, and administrative scripts can produce high-volume file and process activity. The detection problem is therefore not merely whether a suspicious event exists, but whether a process-level pattern is sufficiently different from benign behavior to justify an alert.
 
@@ -146,7 +145,9 @@ Calibration is often discussed as if it converts classifier scores into trustwor
 
 MITRE ATT\&CK provides a useful language for tactics and techniques \cite{mitre2023,strom2018}. It helps analysts connect low-level telemetry to adversary behavior and response playbooks. Yet ATT\&CK technique labels are not automatically available in BETH. Mapping an event identifier such as \texttt{openat}, \texttt{execve}, or \texttt{connect} to a technique requires context. The same system call can be benign, suspicious, or malicious depending on arguments, parent process, user, host role, and temporal context.
 
-For that reason, this paper uses ATT\&CK as an analyst-facing response vocabulary rather than as a supervised feature source. This separates two different questions: whether a detector can classify malicious processes, and whether an alert can be translated into ATT\&CK language through validated telemetry semantics or documented analyst rules. The former is evaluated; the latter is discussed as operational design.
+For that reason, this paper uses ATT\&CK as an analyst-facing response vocabulary rather than as a supervised feature source. This separates two different questions: whether a detector can classify malicious processes, and whether an alert can be translated into ATT\&CK language through validated telemetry semantics or documented analyst rules. The former is evaluated; the latter is discussed as operational design in Section~\ref{sec:response}.
+
+These limitations motivate the formal separation used next: models produce rankings, validation policies convert scores into decisions, and only identically treated decisions support architectural comparison.
 
 \section{Formal Problem Definition}
 \label{sec:formal}
@@ -395,10 +396,6 @@ The histogram part of the feature vector is normalized by the number of events i
 \subsection{Sequence Representation}
 
 For the GRU autoencoder, each process is represented as a sequence of event identifiers. Event identifiers are mapped to integer tokens. Token 0 is padding, and token 1 is reserved for unknown identifiers. The sequence length is set to the 95th percentile of training sequence lengths, which is 1\,152 events. Shorter sequences are padded. Longer sequences are uniformly sampled with evenly spaced indices. Uniform sampling avoids the strong bias introduced by truncating only the beginning or only the end of long traces.
-
-\subsection{Why ATT\&CK Is Used as Response Context}
-
-MITRE ATT\&CK is valuable for analyst interpretation and response planning \cite{mitre2023,strom2018}. However, BETH event identifiers do not include validated ATT\&CK technique labels or documented EDR mapping rules. Technique assignment depends on arguments, parent process, user, file path, network context, host role, and event sequence. The experiment therefore does not treat ATT\&CK technique IDs as supervised predictors. This is not a rejection of ATT\&CK; it is a boundary on what the present data can support. Section~\ref{sec:response} uses ATT\&CK as an analyst taxonomy rather than as an evaluated predictive feature.
 
 \section{Models}
 \label{sec:models}
@@ -877,82 +874,26 @@ Temporal 70/15/15 & 0.6865 & 0.2893 & 0.4294 \\
 \end{tabular}
 \end{table*}
 
-\section{Protocol Audit}
-\label{sec:audit}
-
-\subsection{Leakage Controls}
-
-The first audit question is whether the experiment leaks labels into the predictor. The pipeline avoids the obvious leakage path by excluding \texttt{sus} and \texttt{evil} from feature vectors. These columns are used only to define the process-level target. ATT\&CK mappings are not used as predictors because BETH does not provide technique labels or documented mapping rules for them. The official test file is read during preprocessing to construct test features, but its labels are not used for fitting models, calibration, or threshold selection.
-
-A subtler leakage risk is feature vocabulary construction. If the event vocabulary were fit on train, validation, and test jointly, test-only event identifiers would influence the feature space. The pipeline fits the event vocabulary on the enriched development pool and applies it to test. Unknown test events are handled without expanding the trained feature space. This is important because an event identifier appearing only in the test split could otherwise become a silent test-derived feature.
-
-\subsection{Threshold Fairness}
-
-The second audit question is whether all models receive equivalent threshold treatment. FAIR-BETH evaluates every model under the same validation-derived threshold policies. Under this rule, RF-500 and TabRF at the validation-FPR threshold reach F1 0.7241 and 0.7210, exceeding MetaRF at F1 0.6756. This demonstrates why threshold fairness is not a cosmetic concern; it can determine the interpretation of a hybrid detector.
-
-The paper therefore reports two threshold policies for every model. Neither policy is perfect, but both are applied consistently. This creates a transparent table in which a reader can see how a model behaves under a false-positive constraint and under a validation-F1 objective.
-
-\subsection{Calibration Audit}
-
-The calibration fold contains six malicious processes. This is enough for scikit-learn logistic regression to fit Platt scaling, but it is not enough to trust probability calibration. The Platt-scaled scores are all close to the low development prevalence. The absolute thresholds reported in Appendix~\ref{app:thresholds} are correspondingly small. These numbers should not be interpreted as true posterior probabilities. They are only monotonic transformed scores.
-
-The calibration audit motivates the decision to avoid probability-language in the final claims. We refer to ``scores'' and ``thresholds'' rather than calibrated risk probabilities. A deployment system would require a much larger calibration set from the target environment.
-
-\subsection{Ablation Completeness}
-
-The ablation is complete for the main scientific question because it separates score-only fusion, tabular learning, and tabular-plus-score learning. It does not exhaust all possible architectures. It does not test temporal convolution, transformer encoders, graph neural networks, process-tree aggregation, or host-level aggregation. That is acceptable because the goal is not to win BETH with every possible model; the goal is to test whether detector-score fusion adds value over a strong tabular baseline. The answer is negative.
-
-\subsection{Reproducibility Artifacts}
-
-The run writes partitioned data, fitted-model, score, metric, and figure artifacts. The added audits write cross-fitted thresholds, locked-threshold sensitivity, recurrent-capacity results, calibration, attribution, prefix, cost, stress, and split-robustness tables. Exact filenames and execution order are listed in Appendix~\ref{app:checklist}; generated CSV and JSON files are the authoritative numerical sources.
-
-\section{Failure Mode Analysis}
-\label{sec:failure}
-
-\subsection{Distribution Mismatch}
-
-The most important failure mode is distribution mismatch. The enriched development pool has a malicious rate near 0.5\%, while the official test split has a malicious rate of 61.11\%. A detector trained and thresholded under the development distribution will not necessarily preserve its FPR or recall on the test distribution. The validation-FPR threshold for TabRF produces 28 false positives on 77 benign test processes, corresponding to a test FPR of 36.36\%. This is far above the 5\% validation budget.
-
-There are two possible interpretations. The pessimistic interpretation is that the validation fold is not representative enough for operational thresholding. The constructive interpretation is that BETH intentionally stresses out-of-distribution detection, and the failure to preserve FPR is itself a useful measurement. A practical endpoint system would need environment-specific validation or online threshold adaptation.
-
-\subsection{Representation Compression}
-
-ScoreRF performs worse than direct tabular baselines because detector scores compress high-dimensional behavior into a few scalar values. The Isolation Forest score summarizes isolation difficulty. The GRU-AE score summarizes reconstruction error. Both scores may discard which event types, durations, and argument patterns caused the anomaly. Tabular forests retain these details. Random Forest splits can directly exploit event-specific and scalar interactions.
-
-This explains why MetaRF does not help. Adding compressed scores to the raw feature vector may introduce redundant or noisy variables. A tree ensemble can ignore unhelpful features in principle, but with very few positives it may still fit spurious interactions. The result is a small degradation relative to the strongest direct tabular baselines.
-
-\subsection{Validation Positive Scarcity}
-
-The fixed stratified validation fold contains four positives, so one changed decision moves validation recall by 25 percentage points. Section~\ref{sec:repeated_threshold} reduces reliance on that fold by selecting 50 thresholds from repeated held-out folds containing five or six positives and locking their median before test evaluation. The resulting threshold range is narrow, but this procedure reuses the same 29 development positives and therefore does not create new independent evidence. Fine-grained threshold optimality remains unsupported; the defensible result is a stability and transfer audit.
-
-\subsection{Family-Specific Ambiguity}
-
-The evaluated data do not provide family-level ransomware labels. For this reason, the paper does not make a family-specific claim. It focuses on behavioral malicious-process detection under BETH distribution shift, which is the claim supported by the available labels.
-
-\subsection{Operational Cost Mismatch}
-
-F1 treats precision and recall symmetrically. Endpoint response does not. A false positive that suspends a hospital workstation, a domain controller, or an industrial host may be costly. A false negative that allows encryption may also be catastrophic. The right operating point depends on asset value, action reversibility, and analyst capacity. The paper reports F1 because it is standard, but it does not claim F1 is the only operational criterion.
-
-\section{Discussion}
+\section{Discussion and Failure Analysis}
 \label{sec:discussion}
 
 \subsection{What the Experiment Supports}
 
-The experiment supports seven claims. First, BETH process-level detection is strongly affected by split design. The official train and validation files do not provide malicious process examples, so a supervised detector requires either supplementary development data or a different formulation. Second, the tabular process representation is highly competitive. It captures event diversity, temporal density, return-code behavior, and eventId composition. Third, thresholding policy is not a secondary implementation detail; it changes the apparent ranking of methods. Fourth, ATT\&CK technique labels should be treated as predictive contributions only when supplied by validated telemetry rules or ground-truth annotations. Fifth, FAIR-BETH provides a compact way to audit hybrid behavioral detectors: a positive tabular-dominance gap and a large score-compression gap show that fusion has not earned its complexity on this split. Sixth, the same protocol can be applied to a second behavioral dataset with a different schema: on MalBehavD-V1, repeated splits, prefix evaluation, and held-out permutation attribution produce stable and interpretable evidence without oracle thresholding. Seventh, limit-lifting audits can turn vague deployment objections into measurable quantities: BETH prefix F1 remains weak before full-trace aggregation, cost-optimal thresholds depend strongly on the FN:FP ratio, and host-disjoint validation is unstable because positives are concentrated.
+Four findings answer the research question. First, split design governs what can be claimed: BETH supplies no malicious process in the official training or validation files after aggregation, and the 29 supplementary development positives remain concentrated across hosts. Second, direct tabular models preserve more useful information than anomaly-score compression; the positive tabular-dominance and score-compression gaps show that fusion has not earned its additional complexity on this split. Third, model ranking and deployable decisions are distinct. Threshold policy changes the apparent winner, and a stable development threshold can still fail to transfer. Fourth, FAIR-X is portable as an evaluation contract: MalBehavD-V1 supports the same access, threshold, uncertainty, and prefix audits even though its feature schema is different.
 
 \subsection{What the Experiment Does Not Support}
 
-The experiment does not support the statement that a hybrid AI pipeline improves over a strong tabular baseline. It also does not support family-specific ransomware attribution. The BETH dataset supports behavioral malicious-process and anomaly analysis, but it does not by itself certify family-specific generalization. The MalBehavD-V1 experiment strengthens protocol externality, not direct transfer of a BETH-trained model across incompatible feature schemas. Finally, the experiment does not validate automated response. The cost and prefix audits expose response-relevant constraints, but containment still requires wall-clock latency, false-positive cost, rollback safety, endpoint integration, and human-in-the-loop evaluation.
+The experiment does not establish that hybrid fusion improves over a strong tabular baseline, that all sequence models fail, or that the trained BETH model transfers across endpoint schemas. It does not support family-specific attribution because neither evaluated dataset provides the required BETH-compatible family labels. It also does not validate automated response: the prefix and cost audits expose response-relevant constraints, but containment still requires wall-clock latency, asset-specific false-positive costs, rollback safety, endpoint integration, and analyst evaluation.
 
 \subsection{On Negative Results in Security ML}
 
-Negative results are valuable in security machine learning because overly optimistic claims can lead to unsafe deployments. A detector that looks good only because a baseline used a weaker threshold policy is not an operational improvement. A semantic branch that depends on undocumented mapping assumptions may improve interpretability while reducing reproducibility. A calibrated score trained on six positives may look probabilistic but not behave as a reliable probability under deployment shift. Reporting these failures improves the field by narrowing the space of defensible claims.
+Negative results are valuable in security machine learning when they identify a reproducible failure mechanism. Here, the mechanisms are unequal threshold interpretation, representation compression, positive scarcity, and distributional non-transfer. The calibration fold contains six positives, so Platt scaling supplies a monotonic score transformation rather than a trustworthy posterior probability. The repeated-threshold audit reduces dependence on one four-positive validation fold, but it reuses the same 29 positives and cannot create independent evidence. These boundaries are part of the result rather than post hoc qualifications.
 
 \subsection{The ExtraTrees Ranking--Decision Paradox}
 
 ExtraTrees is the clearest illustration of why FAIR-X separates ranking metrics from thresholded decisions. It obtains the best ranking metrics in the additional audit, with AUC 0.7973 and AP 0.8572, so it would be the apparent winner under a ranking-only comparison. Under the validation-FPR threshold, however, it produces only two false positives but misses 66 malicious processes, yielding recall 0.4545 and F1 0.6180. The model ranks many malicious processes above benign ones, but the validation-derived operating point is too conservative for the shifted official test distribution. This is not a contradiction; it is the exact distinction between score ordering and operational action. A paper reporting only AUC/AP would overstate ExtraTrees, while a paper reporting only F1 would hide its strong ranking behavior. FAIR-X requires both views and makes the threshold policy part of the scientific claim.
 
-\subsection{Implications for Future Ransomware Benchmarks}
+\subsection{Implications for Future Behavioral Benchmarks}
 
 Future behavioral endpoint-security benchmarks should provide:
 \begin{itemize}
@@ -965,7 +906,7 @@ Future behavioral endpoint-security benchmarks should provide:
 \end{itemize}
 Without these elements, it is difficult to distinguish robust detection from benchmark-specific thresholding.
 
-\section{Operational Response Considerations}
+\subsection{Operational and ATT\&CK Boundaries}
 \label{sec:response}
 
 The main experiments do not validate automated response, but they do inform response design. Under the main policy, the best direct tabular baselines achieve recall 0.6942 and precision around 0.75 on the official test split. This means roughly one out of four alerts is false on the test distribution, and approximately 31\% of malicious processes are missed. Such a detector should not autonomously destroy processes or delete files without safeguards. It can, however, support tiered response.
@@ -996,7 +937,7 @@ Low-confidence anomaly & Escalate to analyst queue & No destructive action; coll
 \end{tabular}
 \end{table*}
 
-\section{Threats to Validity}
+\section{Threats to Validity and Future Work}
 \label{sec:validity}
 
 \subsection{Internal Validity}
@@ -1015,44 +956,21 @@ The BETH results are specific to BETH and to the process-level aggregation used 
 
 The official BETH test set has 198 processes. Bootstrap intervals quantify uncertainty but cannot create additional independent BETH evidence. The difference between the strongest tabular baselines and MetaRF is not large enough to justify a universal dominance claim. The safer conclusion is that MetaRF does not provide evidence of improvement over direct tabular learning in this setting. The MalBehavD-V1 repeated-split analysis reduces concern that the protocol is BETH-only, but it remains a separate dataset with a different observation schema. The host-disjoint audit also shows high variance because the positive examples are concentrated; therefore, split-robustness results should be read as stress evidence rather than as a stable deployment estimate.
 
-\section{Future Work and Claim Boundaries}
+\subsection{Evidence Required to Extend the Claims}
 \label{sec:recommendations}
 
 The strongest claim supported by the experiment is methodological: threshold policy, baseline strength, and diagnostic gaps determine whether a hybrid pipeline appears useful. The empirical claim is narrower: on the BETH process-level configuration studied here, RF-500 and TabRF have higher F1 point estimates than MetaRF under the common validation-FPR policy, and detector-score fusion does not provide evidence of improvement. The family-level claim is deliberately absent because the evaluated data do not provide family-specific labels. ATT\&CK mapping is treated as response-layer context unless a validated mapping procedure is introduced.
 
-The repeated threshold audit removes dependence on one four-positive fold but cannot increase the number of independent positive processes. The next experimental step is therefore a larger schema-compatible endpoint dataset with host and time metadata, family labels, and enough positive processes to reserve independent calibration and test cohorts. The remaining deployment-grade steps are direct cross-environment transfer, family-labeled ransomware validation, malware-execution evasion tests, wall-clock detection delay, and response evaluation with rollback and analyst workload. These are new evidence requirements, not conclusions supplied by BETH or MalBehavD-V1.
+The repeated threshold audit removes dependence on one four-positive fold but cannot increase the number of independent positive processes. The next experimental priority is therefore a larger schema-compatible endpoint dataset with host and time metadata, family labels, and enough positives for independent calibration and test cohorts. A direct-transfer study should freeze the BETH-trained representation and threshold, evaluate them on the external environment, and separately report any locally recalibrated threshold. Deployment-grade evidence additionally requires malware-execution evasion tests, wall-clock detection delay, asset-aware costs, rollback evaluation, and measured analyst workload. These are new evidence requirements, not conclusions supplied by BETH or MalBehavD-V1.
 
-\section{Data Card and Model Card Summary}
-\label{sec:cards}
+\section{Reproducibility and Responsible Use}
+\label{sec:responsible}
 
-\subsection{Data Card}
+The evaluated BETH data are process-level endpoint-event aggregations intended for offline method evaluation under distribution shift. The official test remains isolated; supplementary BETH files provide development positives because the official training and validation files contain none after aggregation. The external MalBehavD-V1 experiment validates the evaluation contract on a different behavioral schema rather than claiming direct model transfer.
 
-The evaluated data are process-level aggregations of BETH endpoint events. The intended use of the data in this paper is offline method evaluation under distribution shift. The data should not be interpreted as a complete representation of ransomware behavior in production networks. The official test split is retained as the final test split. The supplementary 2021may files are used for development only because the official training and validation files contain no malicious process after aggregation.
+The reproducibility package records partitions, fitted models, scores, thresholds, metrics, uncertainty estimates, and figures. Feature vocabularies are fitted on development data, label columns are excluded from predictors, and generated CSV and JSON artifacts are the authoritative numerical sources. Appendix~\ref{app:checklist} specifies the execution order, and the public repository listed in the declarations contains the code and derived artifacts.
 
-The main ethical risk is overclaiming. A reader could incorrectly infer that a detector with F1 around 0.72 on BETH is ready to stop ransomware in a live enterprise. The paper avoids this by separating detection results from response design, reporting false positives and false negatives, and adding an independent MalBehavD-V1 protocol validation rather than a deployment claim. Schema-compatible and family-labeled validation is still required before claiming ransomware-family generalization. The article therefore uses a behavioral malicious-process framing.
-
-\subsection{Model Card}
-
-The highest-F1 model group consists of direct tabular forests trained on process-level scalar statistics and eventId histograms. It is intended as a benchmark group for behavioral detection research, not as a standalone endpoint product. Its main strength is that it is simple, reproducible, and has higher F1 point estimates than the hybrid model under the common threshold policy. Its main weakness is distribution sensitivity: the validation-FPR budget does not transfer cleanly to the official test split.
-
-The model should not be used for autonomous destructive actions. If deployed experimentally, it should produce alerts and telemetry-enrichment requests, not direct process termination, unless paired with independent high-confidence signals and a rollback plan. It should be recalibrated in the target environment using local benign and malicious validation data. It should also be monitored for drift because event distributions change with host role, operating system, workload, and attacker behavior.
-
-\subsection{Failure Disclosure}
-
-The paper explicitly discloses five failures: unsupervised anomaly scores invert on the official test split; score fusion does not beat the tabular baseline; validation thresholds are unstable when positives are scarce; BETH prefix detection is much weaker than full-trace detection; and host-disjoint validation is unstable because positives are concentrated. These failures are part of the contribution. They identify where the evidence stops and prevent a method section from becoming a collection of plausible but unsupported modules.
-
-\section{Operational Deployment Notes}
-\label{app:deployment}
-
-If the detector were adapted for a pilot deployment, the batch process-level formulation would need to be converted into a streaming formulation. The offline experiment aggregates all events belonging to a process. A live endpoint sensor receives events incrementally. At time $t$, only a prefix of each process trace is available. A deployment-ready study should therefore compute the same features over growing prefixes and report detection quality as a function of time and event count. A detector that performs well only after a ransomware process has completed its file modifications is not useful for containment.
-
-The safest streaming design is to maintain a rolling process state. Each active process has counters for event identifiers, argument statistics, return-value statistics, first timestamp, latest timestamp, and parent-process information. When a new event arrives, the state is updated and a score can be recomputed. This avoids storing full raw traces indefinitely. It also allows the system to emit repeated alerts with increasing confidence as more evidence accumulates.
-
-The response policy should be asset-aware. On a developer workstation, a high-volume file-writing process may be a compiler, test runner, archive tool, or package manager. On a file server, the same behavior may be more suspicious. On an industrial controller, any process suspension may be dangerous. Therefore, the threshold should not be global across all machines. A practical system would maintain host-role-specific thresholds or at least host-role-specific alert routing. This requirement is beyond the BETH experiment but follows directly from the observed FPR transfer problem.
-
-The detector should also expose evidence, not only a score. For TabRF, useful evidence includes the largest contributing event histogram differences, process duration, event rate, and unusual return-value behavior. Analysts need to know whether the score came from file activity, process spawning, network activity, or a combination. Without evidence, a false positive is harder to triage and a true positive is harder to contain.
-
-Finally, model monitoring is mandatory. Endpoint behavior changes after operating-system updates, software deployments, policy changes, backup schedules, and user-role changes. A model calibrated in one month may drift in the next. Monitoring should track alert volume, score distributions, top eventIds among alerts, false-positive feedback, and host-role concentration. If the score distribution shifts sharply, thresholds should be reviewed before response automation is trusted.
+The trained models are research benchmarks, not autonomous containment systems. Their disclosed failures include inverted unsupervised rankings, non-improving score fusion, non-transfer of the development FPR budget, weak early BETH detection, and unstable host-disjoint validation. Any pilot deployment would require streaming prefix features, target-environment recalibration, drift monitoring, analyst-visible evidence, reversible actions, and host-role-specific response policies.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -1154,46 +1072,6 @@ The sequence length of 1\,152 is the 95th percentile of training sequence length
 \label{app:checklist}
 
 The code performs the following sequence: (i) read BETH CSV files; (ii) exclude DNS files; (iii) aggregate events by \texttt{hostName} and \texttt{processId}; (iv) create labels from \texttt{evil}; (v) remove label columns from predictors; (vi) build scalar and event histogram features; (vii) build eventId sequences; (viii) split the enriched development pool into train, calibration, and stratified validation; (ix) train Isolation Forest and GRU-AE; (x) fit Platt scaling on calibration scores; (xi) train ScoreRF, TabRF, and MetaRF; (xii) select thresholds on \texttt{val\_strat}; (xiii) evaluate once on official test; and (xiv) write CSV metrics and figures. This order is intended to make accidental test leakage visible.
-
-\section{Detailed Interpretation of the Result Table}
-\label{app:interpretation}
-
-The full result table can be read in three passes. The first pass is ranking. IF-Platt, GRUAE-Platt, and SimpleAvg all have AUC below 0.5, indicating that they rank many benign test processes above malicious test processes. ScoreRF improves the ranking to AUC 0.5960, but this remains weak. Direct tabular learners such as ExtraTrees, MLP, RF-500, TabRF, and MetaRF have stronger AUC values. This ranking pass shows that the raw tabular representation is necessary, but it does not by itself identify the best operating point.
-
-The second pass is thresholded behavior. Under the validation-FPR budget, IF-Platt and GRUAE-Platt produce very low recall. Their thresholds are conservative because the validation fold is mostly benign. SimpleAvg inherits the same weakness. ScoreRF increases recall to 0.3636, but still misses 77 malicious processes. TabRF reaches recall 0.6942 with precision 0.7500. MetaRF reaches recall 0.6281 with precision 0.7308. This pass shows that the operationally useful region is reached only by supervised tabular learning.
-
-The third pass is uncertainty. TabRF has F1 CI [0.6484, 0.7849], while MetaRF has [0.5990, 0.7456]. These intervals overlap. Therefore, the evidence does not support a universal statistical superiority claim for TabRF. It supports the narrower conclusion that the experiment provides no evidence that MetaRF improves over TabRF.
-
-The validation-max-F1 rows should be treated as a warning. For TabRF and MetaRF, validation-max-F1 yields high precision and low recall on the official test split. Because the validation fold contains four positives, the selected threshold can be dominated by a tiny number of processes. These rows are included to demonstrate threshold sensitivity and to discourage cherry-picking a single policy.
-
-\section{How to Extend the Experiment without Weakening It}
-\label{app:extensions}
-
-Several extensions are possible, but not all would strengthen the paper. Adding more neural branches without changing the split design would likely add complexity without addressing the central weakness: limited positive validation data and distribution shift. The most valuable extension is a schema-compatible external endpoint dataset with family labels and enough malicious processes for validation. The host-disjoint and temporal audits in Section~\ref{sec:limit_lifting} show that BETH can measure split fragility, but they also show that the available positive examples are too concentrated for stable host-disjoint threshold selection.
-
-Feature attribution should be extended carefully. This paper reports permutation importance on held-out BETH and MalBehavD-V1 test splits, and the importance values are not used to tune either model. SHAP-style explanations may be useful as a secondary analysis, but a simple permutation analysis is easier to reproduce and less dependent on approximation choices.
-
-Latency evaluation remains necessary for response claims. This paper adds prefix-count curves, but a live endpoint detector needs wall-clock delay: first second, first five seconds, first file-write burst, and time before irreversible impact. The result should be a detection-delay curve tied to containment feasibility, not only final-process classification.
-
-Finally, any future ATT\&CK integration should start from validated telemetry semantics. A robust approach would map event names and arguments to ATT\&CK techniques through documented EDR rules, then validate a sample of mappings with analysts. The mapping should be reported as a separate annotation layer with inter-rater agreement or rule provenance. Until such validation exists, ATT\&CK labels are best reported as an interpretation layer rather than as supervised predictors.
-
-\section{Claim Consistency Checklist}
-\label{app:claim_consistency}
-
-The claims are constrained by the available evidence. First, the title must match the evidence: without a family-labeled external endpoint test, the scope remains behavioral malicious-process detection under distribution shift. Second, the abstract states the negative result plainly: MetaRF does not improve over the strongest tabular baselines under the common policy. Third, all tables are generated from the final CSV artifacts. Fourth, the methods section states that ATT\&CK mappings are not used as supervised predictors without validated technique labels. Fifth, the limitations distinguish protocol externality on MalBehavD-V1 from direct cross-schema BETH-model transfer and family-specific validation. Sixth, the limit-lifting audits are presented as audits: they quantify attribution, prefix behavior, cost sensitivity, stress response, and split fragility without converting them into deployment claims.
-
-The bibliography contains verified references. The BETH citation identifies the CEUR workshop paper by Highnam, Arulkumaran, Hanif, and Jennings. The calibration references include Platt scaling and modern calibration analysis. The evaluation section cites precision-recall literature because AP is more informative than ROC alone under imbalance.
-
-The claims are ordered by strength. The strongest claim is that fair thresholding changes the interpretation of the hybrid pipeline. The second strongest claim is that aggregated tabular behavior provides more useful signal than detector-score fusion on this BETH configuration. The third claim is that calibration and validation are fragile under extreme positive scarcity. The weakest claim is operational response; it is presented as design guidance, not evaluated performance.
-
-\section{Schema-Compatible External Validation Design}
-\label{app:external}
-
-MalBehavD-V1 provides an independent behavioral validation of the evaluation protocol, but it uses API-call sequences rather than the BETH endpoint-event schema. A stronger future validation set for direct model transfer should contain benign processes and ransomware processes from one or more known families. Each process should have the same observable fields as BETH or a documented mapping to the same feature schema. The BETH model should be trained exactly as in the present paper, without using external labels for fitting. The external set should then be split into an external validation fold and an external test fold, or, if too small, used only as an additional test with a threshold fixed from BETH development.
-
-The external evaluation should report three threshold choices: the BETH validation-FPR threshold, an external validation-FPR threshold, and an oracle test threshold clearly marked as non-deployable. The first tests transfer. The second tests whether the model can be recalibrated in a new environment. The third shows the best possible operating point but must not be used as the main result. If the BETH threshold fails but the external threshold works, the lesson is environment-specific thresholding. If both fail, the representation does not generalize. If both work, the detector has stronger evidence for cross-environment robustness.
-
-Family-specific claims require family-specific labels. If a future external set contains verified samples from a named ransomware family, then and only then can the paper introduce a family-specific statement. Even then, it should distinguish between detection of that family's behavior in the collected environment and universal family detection. Ransomware families change over time, and a family name does not guarantee a stable behavioral distribution.
 
 \section*{Acknowledgements}
 This work was supported by the authors' institutions. The authors used AI-assisted language and coding tools to improve readability, implementation checks, and reproducibility packaging. After using these tools, the authors reviewed and edited the content, verified the experimental outputs, and take full responsibility for the publication.
