@@ -254,7 +254,13 @@ The principle is operational rather than asymptotic. It defines the burden of pr
 \draw[arrow] (features) -- (models);
 \draw[arrow] (models) -- (test);
 \draw[arrow] (thresholds) -- (metrics);
-\draw[arrow] (test) |- (metrics);
+%\draw[arrow] (test) |- (metrics);\\
+\draw[arrow]
+  (test.east)
+  -- ++(1cm,0)
+  -- ++(0,-7cm)
+  -- ++(-10.6cm,0)
+  -- (metrics.south);
 \draw[arrow] (metrics) -- (diagnostics);
 \draw[arrow] (diagnostics) -- (limits);
 \draw[arrow] (diagnostics) -- (claims);

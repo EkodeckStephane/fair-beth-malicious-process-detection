@@ -252,7 +252,13 @@ The principle is operational rather than asymptotic. It defines the burden of pr
 \draw[arrow] (features) -- (models);
 \draw[arrow] (models) -- (test);
 \draw[arrow] (thresholds) -- (metrics);
-\draw[arrow] (test) |- (metrics);
+%\draw[arrow] (test.east) |- (metrics.south);
+\draw[arrow]
+  (test.east)
+  -- ++(1cm,0)
+  -- ++(0,-7cm)
+  -- ++(-10.6cm,0)
+  -- (metrics.south);
 \draw[arrow] (metrics) -- (diagnostics);
 \draw[arrow] (diagnostics) -- (limits);
 \draw[arrow] (diagnostics) -- (claims);
@@ -691,15 +697,6 @@ MLP & 0.5913 & 0.5782 \\
 \end{tabular}
 \end{table}
 
-\iffalse
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.95\textwidth]{reliability_diagrams.png}
-\caption{Reliability diagrams for the additional tabular audit on the official BETH test split. The diagrams support the paper's use of score and threshold language rather than calibrated-risk language.}
-\label{fig:reliability}
-\end{figure*}
-\fi
-
 \subsection{Ablation Interpretation}
 
 The ablation structure isolates three information levels:
@@ -772,30 +769,12 @@ Table~\ref{tab:malbehavd_prefix} and Figure~\ref{fig:malbehavd_prefix} address t
 
 Finally, supplementary permutation attribution on the fixed external test split reports API-specific and family-rate features derived only after final evaluation. They are not used to tune the model, preserving the separation between model selection and interpretation.
 
-\iffalse
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.95\linewidth]{malbehavd_feature_importance.png}
-\caption{Permutation feature importance on MalBehavD-V1. Attribution is computed after final evaluation and is used only for interpretation.}
-\label{fig:malbehavd_importance}
-\end{figure}
-\fi
-
 \section{Additional Limit-Lifting Audits on BETH}
 \label{sec:limit_lifting}
 
 The external MalBehavD-V1 experiment tests whether the evaluation protocol transfers to a second behavioral schema. We also add five BETH-specific audits to reduce remaining ambiguity: feature attribution, prefix detection, cost-sensitive thresholding, feature-space stress testing, and host/temporal split robustness. These audits use the already selected TabRF model unless stated otherwise. They are not used to tune the main result.
 
 Supplementary held-out permutation importance for TabRF shows that the dominant predictors are eventId histogram features, event entropy, process size, duration, event rate, and argument diversity. This supports the interpretation that TabRF is not relying on label annotations or ATT\&CK-derived predictors; it is using observable behavioral composition and process-scale statistics.
-
-\iffalse
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.95\linewidth]{beth_tabrf_permutation_importance.png}
-\caption{Held-out permutation importance for BETH TabRF on the official test split. Importance is computed after final evaluation and is not used for tuning.}
-\label{fig:beth_importance}
-\end{figure}
-\fi
 
 Table~\ref{tab:beth_prefix} evaluates TabRF on prefixes of BETH process traces; the corresponding curve is supplementary. The validation-FPR threshold is reselected on the corresponding validation prefix. The result is materially weaker than full-trace classification: F1 is 0.0775 after 10 events, 0.3576 after 25 events, 0.5349 after 250 events, and 0.7210 only when the full process trace is available. This directly addresses the latency limitation. On BETH, the current full-process representation should not be claimed as an early containment detector.
 
@@ -816,15 +795,6 @@ Full trace & 0.7360 & 0.7500 & 0.6942 & 0.7210 \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\iffalse
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.95\linewidth]{beth_prefix_curve.png}
-\caption{BETH TabRF prefix curve. Unlike MalBehavD-V1, BETH requires much more of the process trace before recall becomes useful.}
-\label{fig:beth_prefix}
-\end{figure}
-\fi
 
 Table~\ref{tab:beth_cost} replaces a single F1 operating point with explicit cost assumptions. When false negatives and false positives have equal cost, the lowest empirical cost occurs at threshold 0.0274, with 21 false positives and 42 false negatives. When a false negative costs at least five times a false positive, the cost-minimizing threshold on this test split is zero, producing no false negatives but 77 false positives. This is not a deployable recommendation, because it uses test labels to illustrate cost sensitivity. It shows that response policy cannot be inferred from F1 alone.
 
