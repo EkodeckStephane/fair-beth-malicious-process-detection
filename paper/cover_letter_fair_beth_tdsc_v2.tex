@@ -31,21 +31,20 @@ June 7, 2026
 The Editor-in-Chief\\
 \textit{IEEE Transactions on Dependable and Secure Computing}
 
-\textbf{Re: Regular Paper submission, ``FAIR-BETH: A Fair Thresholding and
-Ablation Protocol for Behavioral Malicious-Process Detection under
-Distribution Shift''}
+\textbf{Re: Regular Paper submission, ``FAIR-X: A Threshold-Transfer
+Evaluation Contract for Behavioral Malware Detection under Distribution
+Shift''}
 
 Dear Editor-in-Chief,
 
 We respectfully submit the above manuscript for consideration as a Regular
 Paper in \textit{IEEE Transactions on Dependable and Secure Computing}
-(TDSC). The submission comprises a 17-page main manuscript and a separate
+(TDSC). The submission comprises an 18-page main manuscript and a separate
 four-page supplementary file. The paper addresses a concrete dependability
 problem in
 security-machine-learning systems: a detector can rank malicious processes
-well yet produce unreliable operational decisions when models receive
-different threshold treatment or when validation and deployment distributions
-differ.
+well yet produce unreliable operational decisions when its validation-derived
+threshold does not transfer to a shifted deployment distribution.
 
 \textbf{Scope and relevance to TDSC.}
 The work concerns dependable evaluation of endpoint-security detectors under
@@ -62,9 +61,9 @@ Published security-ML guidance warns against data leakage, weak baselines, and
 inappropriate metrics. However, these principles do not by themselves provide
 an executable procedure for deciding whether a hybrid detector adds value
 under the same operating constraints as a strong non-hybrid baseline.
-FAIR-BETH closes this gap through:
+FAIR-X closes this gap through:
 \begin{itemize}
-    \item an evaluation contract that fixes data access, feature fitting,
+    \item a general threshold-transfer evaluation contract that fixes data access, feature fitting,
     calibration, threshold selection, baseline parity, and uncertainty
     reporting before official-test evaluation;
     \item three quantitative diagnostics---tabular dominance, score
@@ -74,7 +73,7 @@ FAIR-BETH closes this gap through:
     development positives, without synthetic enrichment;
     \item target-copy-free GRU/LSTM capacity ablations that bound the
     sequence-model conclusion; and
-    \item independent protocol validation on MalBehavD-V1, supplemented by
+    \item an instantiation on BETH and independent protocol validation on MalBehavD-V1, supplemented by
     BETH prefix, calibration, attribution, cost, feature-stress,
     host-disjoint, and temporal audits.
 \end{itemize}
@@ -84,8 +83,8 @@ FAIR-BETH closes this gap through:
 \textbf{Principal evidence.}
 After process aggregation, the official BETH training and validation files
 contain no malicious processes, whereas 121 of 198 official-test processes
-are malicious. Under one common validation-FPR policy, RF-500 and TabRF obtain
-F1 scores of 0.7241 and 0.7210, while MetaRF obtains 0.6756; the hybrid fusion
+are malicious. Under one common validation-FPR policy, TabRF obtains an F1 score of 0.7210,
+RF-500 obtains 0.7043, and MetaRF obtains 0.6756; the hybrid fusion
 therefore provides no evidence of improvement. Fifty thresholds fixed by
 repeated five-fold validation have median 0.006 and IQR 0.004--0.006. Yet the
 locked median threshold converts a 5\% development-FPR objective into 32.47\%

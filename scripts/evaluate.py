@@ -26,6 +26,8 @@ from utils import ensure_dir
 def choose_threshold_by_fpr(y_val, val_scores, fpr_budget=FPR_BUDGET):
     fpr, _, thresholds = roc_curve(y_val, val_scores)
     valid = np.where(fpr <= fpr_budget)[0]
+    # sklearn returns thresholds in decreasing order, so valid[-1] is the
+    # most permissive (lowest) threshold still satisfying the FPR budget.
     return float(thresholds[valid[-1]]) if len(valid) else 0.5
 
 

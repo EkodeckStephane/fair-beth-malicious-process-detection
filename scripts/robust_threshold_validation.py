@@ -51,6 +51,8 @@ def choose_threshold_by_fpr(y_true, scores, budget=FPR_BUDGET):
     valid = np.where((fpr <= budget) & finite)[0]
     if not len(valid):
         return float(np.nextafter(np.max(scores), np.inf))
+    # sklearn returns thresholds in decreasing order, so valid[-1] is the
+    # most permissive (lowest) threshold still satisfying the FPR budget.
     return float(thresholds[valid[-1]])
 
 

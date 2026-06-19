@@ -1,6 +1,5 @@
 import json
 import math
-import os
 from collections import Counter
 from pathlib import Path
 
@@ -22,9 +21,8 @@ from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 
 
 SEED = 42
-REPO_ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = Path(os.environ.get("MALBEHAVD_CSV", REPO_ROOT / "data" / "MalBehavD-V1-dataset.csv"))
-OUT_DIR = Path(os.environ.get("MALBEHAVD_OUTPUT_DIR", REPO_ROOT / "results" / "external_malbehavd_generated"))
+DATA_PATH = Path("external_malbehavd/MalBehavD-V1-dataset.csv")
+OUT_DIR = Path("external_malbehavd/output")
 PREFIXES = [10, 25, 50, 100, "full"]
 TOP_K = 128
 REPEATS = 30
@@ -93,13 +91,15 @@ def choose_threshold(y, scores, policy):
     scores = np.asarray(scores)
     thresholds = np.unique(scores)
     if policy == "val_fpr_budget":
+        # Most-permissive threshold within the FPR budget (matches BETH policy).
         benign_scores = scores[y == 0]
-        best = thresholds.max() + 1e-12
+        best = float("inf")
         for thr in thresholds:
             fpr = np.mean(benign_scores >= thr) if len(benign_scores) else 0.0
             if fpr <= FPR_BUDGET:
                 best = min(best, thr)
-        return float(best)
+                break
+        return float(best) if best != float("inf") else float(np.nextafter(thresholds.min(), -np.inf))
     if policy == "val_max_f1":
         best_thr, best_f1 = thresholds[0], -1.0
         for thr in thresholds:

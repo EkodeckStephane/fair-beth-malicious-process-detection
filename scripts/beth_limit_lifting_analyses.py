@@ -4,7 +4,6 @@ import json
 import os
 import pickle
 from collections import Counter
-from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
@@ -27,13 +26,17 @@ from sklearn.preprocessing import StandardScaler
 
 SEED = 42
 FPR_BUDGET = 0.05
-REPO_ROOT = Path(__file__).resolve().parents[1]
-SCRIPT_DIR = Path(__file__).resolve().parent
-PIPELINE_DIR = Path(os.environ.get("FAIR_BETH_PIPELINE_DIR", SCRIPT_DIR)).resolve()
-DATA_DIR = Path(os.environ.get("BETH_DATA_DIR", PIPELINE_DIR / "BETH_Dataset")).resolve()
-PIPELINE_OUTPUT = Path(os.environ.get("FAIR_BETH_PIPELINE_OUTPUT", PIPELINE_DIR / "pipeline_output")).resolve()
-OUTPUT_DIR = Path(os.environ.get("BETH_AUDIT_OUTPUT_DIR", REPO_ROOT / "results" / "beth_limit_lifting_generated")).resolve()
-FIG_DIR = OUTPUT_DIR / "figures"
+# The pipeline output used by the main FAIR-BETH run can be overridden with an
+# environment variable; the default keeps backward compatibility with the sibling
+# lockbit2026_pipeline_v3 directory.
+PIPELINE_OUTPUT = os.path.abspath(
+    os.environ.get("FAIR_BETH_PIPELINE_OUTPUT", os.path.join("..", "lockbit2026_pipeline_v3", "pipeline_output"))
+)
+DATA_DIR = os.path.abspath(
+    os.environ.get("BETH_DATA_DIR", os.path.join("..", "lockbit2026_pipeline_v3", "BETH_Dataset"))
+)
+OUTPUT_DIR = os.path.abspath(os.path.join("beth_limit_lifting_output"))
+FIG_DIR = os.path.join(OUTPUT_DIR, "figures")
 
 TRAIN_FILES = ["labelled_training_data.csv"]
 VAL_FILES = ["labelled_validation_data.csv"]
@@ -49,19 +52,19 @@ BASE_KEYS = [
 
 
 def ensure_dirs():
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    FIG_DIR.mkdir(parents=True, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    os.makedirs(FIG_DIR, exist_ok=True)
 
 
 def load_pickle(name):
-    with open(PIPELINE_OUTPUT / name, "rb") as f:
+    with open(os.path.join(PIPELINE_OUTPUT, name), "rb") as f:
         return pickle.load(f)
 
 
 def load_csvs(file_names):
     frames = []
     for fn in file_names:
-        path = DATA_DIR / fn
+        path = os.path.join(DATA_DIR, fn)
         df = pd.read_csv(path, low_memory=False)
         df["source_file"] = fn
         frames.append(df)
@@ -165,6 +168,8 @@ def records_to_features(records, vocab_event_ids, prefix="full"):
 def choose_threshold_by_fpr(y_val, scores, fpr_budget=FPR_BUDGET):
     fpr, _, thresholds = roc_curve(y_val, scores)
     valid = np.where(fpr <= fpr_budget)[0]
+    # sklearn returns thresholds in decreasing order, so valid[-1] is the
+    # most permissive (lowest) threshold still satisfying the FPR budget.
     return float(thresholds[valid[-1]]) if len(valid) else float(np.max(scores) + 1e-9)
 
 
@@ -216,14 +221,14 @@ def permutation_importance_tab_rf(test_data, tabrf, threshold, names):
             "std_auc_drop": float(np.std(drops_auc)),
         })
     df = pd.DataFrame(rows).sort_values("mean_f1_drop", ascending=False)
-    df.to_csv(OUTPUT_DIR / "beth_tabrf_permutation_importance.csv", index=False)
+    df.to_csv(os.path.join(OUTPUT_DIR, "beth_tabrf_permutation_importance.csv"), index=False)
     top = df.head(15).iloc[::-1]
     plt.figure(figsize=(7, 5))
     plt.barh(top["feature"], top["mean_f1_drop"])
     plt.xlabel("Mean F1 drop after permutation")
     plt.title("BETH TabRF held-out permutation importance")
     plt.tight_layout()
-    plt.savefig(FIG_DIR / "beth_tabrf_permutation_importance.png", dpi=300)
+    plt.savefig(os.path.join(FIG_DIR, "beth_tabrf_permutation_importance.png"), dpi=300)
     plt.close()
     return df
 
@@ -243,7 +248,7 @@ def prefix_evaluation(dev_records, test_records, train_data, val_strat_idx, tabr
         row.update(metrics(y_test, s_test, thr))
         rows.append(row)
     df = pd.DataFrame(rows)
-    df.to_csv(OUTPUT_DIR / "beth_prefix_results.csv", index=False)
+    df.to_csv(os.path.join(OUTPUT_DIR, "beth_prefix_results.csv"), index=False)
     plt.figure(figsize=(6, 4))
     plt.plot(df["prefix"], df["F1"], marker="o", label="F1")
     plt.plot(df["prefix"], df["Recall"], marker="s", label="Recall")
@@ -254,7 +259,7 @@ def prefix_evaluation(dev_records, test_records, train_data, val_strat_idx, tabr
     plt.title("BETH TabRF prefix evaluation")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(FIG_DIR / "beth_prefix_curve.png", dpi=300)
+    plt.savefig(os.path.join(FIG_DIR, "beth_prefix_curve.png"), dpi=300)
     plt.close()
     return df
 
@@ -278,8 +283,8 @@ def cost_evaluation(y_test, scores):
             })
     df = pd.DataFrame(rows)
     best = df.loc[df.groupby(["fn_cost", "fp_cost"])["expected_cost"].idxmin()].copy()
-    df.to_csv(OUTPUT_DIR / "beth_cost_curve_all_thresholds.csv", index=False)
-    best.to_csv(OUTPUT_DIR / "beth_cost_optimal_thresholds.csv", index=False)
+    df.to_csv(os.path.join(OUTPUT_DIR, "beth_cost_curve_all_thresholds.csv"), index=False)
+    best.to_csv(os.path.join(OUTPUT_DIR, "beth_cost_optimal_thresholds.csv"), index=False)
     plt.figure(figsize=(6, 4))
     for fn_cost in [1, 5, 10, 25, 50]:
         sub = df[df["fn_cost"] == fn_cost]
@@ -289,7 +294,7 @@ def cost_evaluation(y_test, scores):
     plt.title("BETH TabRF operational cost sensitivity")
     plt.legend(fontsize=8)
     plt.tight_layout()
-    plt.savefig(FIG_DIR / "beth_cost_sensitivity.png", dpi=300)
+    plt.savefig(os.path.join(FIG_DIR, "beth_cost_sensitivity.png"), dpi=300)
     plt.close()
     return best
 
@@ -337,14 +342,14 @@ def evasion_stress_tests(test_data, tabrf, threshold):
         add_result(f"malicious_slowdown_{scale:.2f}", Xp)
 
     df = pd.DataFrame(rows)
-    df.to_csv(OUTPUT_DIR / "beth_evasion_stress_tests.csv", index=False)
+    df.to_csv(os.path.join(OUTPUT_DIR, "beth_evasion_stress_tests.csv"), index=False)
     plt.figure(figsize=(7, 4))
     plt.barh(df["stress"].iloc[::-1], df["F1"].iloc[::-1])
     plt.xlabel("F1 at original validation-FPR threshold")
     plt.title("BETH TabRF feature-space stress tests")
     plt.xlim(0, 1)
     plt.tight_layout()
-    plt.savefig(FIG_DIR / "beth_evasion_stress_tests.png", dpi=300)
+    plt.savefig(os.path.join(FIG_DIR, "beth_evasion_stress_tests.png"), dpi=300)
     plt.close()
     return df
 
@@ -397,11 +402,11 @@ def train_eval_group_temporal(dev_records, test_records, vocab):
     run_split("temporal_70_15_15", train_idx, val_idx)
 
     df = pd.DataFrame(rows)
-    df.to_csv(OUTPUT_DIR / "beth_group_temporal_robustness.csv", index=False)
+    df.to_csv(os.path.join(OUTPUT_DIR, "beth_group_temporal_robustness.csv"), index=False)
     ok = df[df["status"] == "ok"].copy()
     if not ok.empty:
         summary = ok[["AUC", "AP", "Precision", "Recall", "F1", "FP", "FN"]].describe()
-        summary.to_csv(OUTPUT_DIR / "beth_group_temporal_robustness_summary.csv")
+        summary.to_csv(os.path.join(OUTPUT_DIR, "beth_group_temporal_robustness_summary.csv"))
     return df
 
 
@@ -434,7 +439,7 @@ def main():
         "official_test_malicious": int(sum(r["y"] for r in test_records)),
         "validation_indices_reproduced": int(len(val_strat_idx)),
     }
-    with open(OUTPUT_DIR / "inventory.json", "w", encoding="utf-8") as f:
+    with open(os.path.join(OUTPUT_DIR, "inventory.json"), "w", encoding="utf-8") as f:
         json.dump(inventory, f, indent=2)
 
     print("[*] BETH TabRF permutation importance...")
