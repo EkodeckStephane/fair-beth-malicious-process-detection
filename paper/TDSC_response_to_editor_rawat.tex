@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{fontenc}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{parskip}
+
+\begin{document}
+
+\begin{flushleft}
+\today
+\end{flushleft}
+
+\begin{flushleft}
+Dr. Ashutosh Rawat\\
+Associate Editor, IEEE Transactions on Dependable and Secure Computing\\
+Email: \href{mailto:rawat.a@ieee.org}{rawat.a@ieee.org}
+\end{flushleft}
+
+\vspace{0.5em}
+\noindent\textbf{Re: TDSC-2026-06-2367}\\
+\textit{``FAIR-X: A Threshold-Transfer Evaluation Contract for Behavioral Malware Detection under Distribution Shift''}
+
+\vspace{0.5em}
+\noindent Dear Dr. Rawat,
+
+Please find enclosed the revised manuscript, supplement, and reproducibility source package for manuscript TDSC-2026-06-2367. The previous working title was ``FAIR-BETH: A Fair Thresholding and Ablation Protocol for Behavioral Malicious-Process Detection under Distribution Shift.'' The revised title better reflects the paper's repositioning as a general evaluation contract (FAIR-X) with FAIR-BETH as its BETH/MalBehavD-V1 instantiation.
+
+The full reproducibility package is available at:
+
+\begin{center}
+\url{https://github.com/EkodeckStephane/fair-beth-malicious-process-detection}
+\end{center}
+
+\noindent The submitted source package contains the same scripts, generated CSV/JSON artifacts, figures, LaTeX sources, and compiled PDFs as the repository.
+
+\section*{How the revision addresses the prescreening comments}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problem formulation.} The revised manuscript explicitly frames the core problem as \emph{threshold transfer}: converting behavioral security scores into deployable alerting decisions when validation data are scarce and the deployment distribution differs from the validation distribution.
+
+    \item \textbf{Generalizability.} FAIR-X is introduced as a dataset-independent evaluation contract. FAIR-BETH is only one executable instantiation; the same contract is also demonstrated on MalBehavD-V1.
+
+    \item \textbf{Technical contribution.} The paper now foregrounds three quantitative diagnostics---tabular-dominance gap, score-compression gap, and threshold sensitivity---together with an executable audit protocol that turns known security-ML pitfalls into falsifiable tests.
+
+    \item \textbf{Relation to existing work.} The related-work section distinguishes FAIR-X from prior evaluation guidance by emphasizing that it is an executable protocol, not merely a checklist, and requires hybrid detectors to be compared against strong non-hybrid baselines under identical threshold policies.
+
+    \item \textbf{Broader implications.} A dedicated section discusses why ranking metrics are insufficient for dependable endpoint decisions, why validation thresholds may fail under deployment shift, and what additional evidence (prefix latency, cost, reversibility, analyst workload) operational response claims require.
+
+    \item \textbf{Claim boundaries.} The manuscript explicitly excludes ransomware-family attribution, calibrated posterior-risk estimation, direct cross-dataset model transfer, and autonomous containment readiness.
+
+    \item \textbf{Reproducibility.} The package documents every stage of the pipeline, including scripts, hyperparameters, environment details, threshold-selection procedures, calibration audits, repeated cross-fitted thresholds, target-copy-free GRU/LSTM ablations, MalBehavD-V1 validation, prefix evaluation, cost sensitivity, feature-space stress tests, and host/temporal split robustness audits.
+\end{itemize}
+
+\section*{Corrected key results}
+
+All experiments were rerun with aligned methodologies. Under the common validation-FPR policy on the official BETH process-level test split:
+
+\begin{itemize}[nosep]
+    \item TabRF: F1 0.7210
+    \item RF-500 (now using 500 trees): F1 0.7043
+    \item MetaRF: F1 0.6756
+\end{itemize}
+
+The repeated cross-fitted threshold audit fixes 50 thresholds from all 29 BETH development positives before official-test access. Its locked median threshold yields F1 0.6964 but expands the 5\% development-FPR target to 32.47\% test FPR. On MalBehavD-V1, the same FAIR-X contract gives a repeated-split median F1 of 0.9533.
+
+All numerical values in the revised manuscript and supplement are synchronized with the CSV/JSON artifacts in the submitted reproducibility package.
+
+\vspace{1em}
+\noindent Thank you for your time and consideration.
+
+\vspace{1.5em}
+\noindent Respectfully,
+
+\vspace{1.5em}
+\noindent St\'{e}phane Ga\"{e}l R. Ekodeck\\
+Corresponding Author\\
+On behalf of all co-authors\\
+Department of Computer Science, University of Yaound\'{e} I\\
+LIRIMA, Team GRIMCAPE, Yaound\'{e}, Cameroon\\
+\href{mailto:stephane-gael.ekodeck@facsciences-uy1.cm}{stephane-gael.ekodeck@facsciences-uy1.cm}
+
+\end{document}
