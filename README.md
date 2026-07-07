@@ -165,12 +165,12 @@ The LaTeX sources are in `paper/`:
 
 ```powershell
 cd paper
-pdflatex fair_beth_tdsc_v2.tex
-bibtex fair_beth_tdsc_v2
-pdflatex fair_beth_tdsc_v2.tex
-pdflatex fair_beth_tdsc_v2.tex
-pdflatex fair_beth_tdsc_v2_supplement.tex
-pdflatex cover_letter_fair_beth_tdsc_v2.tex
+pdflatex fair_x_tdsc_v2.tex
+bibtex fair_x_tdsc_v2
+pdflatex fair_x_tdsc_v2.tex
+pdflatex fair_x_tdsc_v2.tex
+pdflatex fair_x_tdsc_v2_supplement.tex
+pdflatex cover_letter_fair_x_tdsc_v2.tex
 ```
 
 The `paper/` directory already contains compiled PDF snapshots.
