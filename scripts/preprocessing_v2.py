@@ -114,7 +114,8 @@ def aggregate_process(group_df):
     }
 
 def build_features(dfs, mitre_map, fit_vocab=True,
-                   vocab_event_ids=None, vocab_techniques=None):
+                   vocab_event_ids=None, vocab_techniques=None,
+                   seq_len_override=None):
     all_proc_feats = []
     for df in tqdm(dfs, desc="Fichiers"):
         if df.empty:
@@ -147,7 +148,12 @@ def build_features(dfs, mitre_map, fit_vocab=True,
     tech2idx = {t: i for i, t in enumerate(vocab_techniques)}
 
     lengths = [len(f["sequence"]) for f in all_proc_feats]
-    seq_len = int(np.percentile(lengths, SEQ_LEN_PERCENTILE))
+    if seq_len_override is None:
+        seq_len = int(np.percentile(lengths, SEQ_LEN_PERCENTILE))
+    else:
+        seq_len = int(seq_len_override)
+        if seq_len <= 0:
+            raise ValueError(f"Invalid seq_len_override={seq_len_override}")
     max_len = max(lengths)
     print(f"[+] Longueur séquences : min={min(lengths)}, max={max_len}, 95th={seq_len}")
 
@@ -276,11 +282,13 @@ def main():
     print("[*] Construction VAL (officiel)...")
     val_data = build_features([df_val], mitre_map, fit_vocab=False,
                               vocab_event_ids=train_data["vocab_event_ids"],
-                              vocab_techniques=train_data["vocab_techniques"])
+                              vocab_techniques=train_data["vocab_techniques"],
+                              seq_len_override=train_data["seq_len"])
     print("[*] Construction TEST (officiel)...")
     test_data = build_features([df_test], mitre_map, fit_vocab=False,
                                vocab_event_ids=train_data["vocab_event_ids"],
-                               vocab_techniques=train_data["vocab_techniques"])
+                               vocab_techniques=train_data["vocab_techniques"],
+                               seq_len_override=train_data["seq_len"])
 
     datasets = [
         ("train", train_data),
@@ -291,6 +299,11 @@ def main():
     ]
 
     for name, data in datasets:
+        if data["X_seq"].shape[1] != train_data["seq_len"]:
+            raise RuntimeError(
+                f"Inconsistent sequence length for {name}: "
+                f"{data['X_seq'].shape[1]} != {train_data['seq_len']}"
+            )
         path = os.path.join(OUTPUT_DIR, f"{name}_data.pkl")
         save_pickle_atomic(data, path)
         evil_rate = data["y"].mean()

@@ -403,10 +403,19 @@ def train_eval_group_temporal(dev_records, test_records, vocab):
 
     df = pd.DataFrame(rows)
     df.to_csv(os.path.join(OUTPUT_DIR, "beth_group_temporal_robustness.csv"), index=False)
-    ok = df[df["status"] == "ok"].copy()
-    if not ok.empty:
-        summary = ok[["AUC", "AP", "Precision", "Recall", "F1", "FP", "FN"]].describe()
-        summary.to_csv(os.path.join(OUTPUT_DIR, "beth_group_temporal_robustness_summary.csv"))
+    metric_cols = ["AUC", "AP", "Precision", "Recall", "F1", "FP", "FN"]
+    host_ok = df[(df["status"] == "ok") & df["split"].str.startswith("host_disjoint_")].copy()
+    if not host_ok.empty:
+        host_summary = host_ok[metric_cols].describe()
+        host_summary.to_csv(
+            os.path.join(OUTPUT_DIR, "beth_host_disjoint_robustness_summary.csv")
+        )
+    temporal_ok = df[(df["status"] == "ok") & (df["split"] == "temporal_70_15_15")].copy()
+    if not temporal_ok.empty:
+        temporal_ok[["split", *metric_cols]].to_csv(
+            os.path.join(OUTPUT_DIR, "beth_temporal_70_15_15_result.csv"),
+            index=False,
+        )
     return df
 
 

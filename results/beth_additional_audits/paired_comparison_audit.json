@@ -1,0 +1,63 @@
+{
+  "protocol": {
+    "bootstrap_resamples": 10000,
+    "fpr_budget": 0.05,
+    "seed": 42,
+    "threshold_policy": "validation-FPR budget"
+  },
+  "thresholds": {
+    "TabRF": 0.01825414471868176,
+    "MetaRF": 0.016540763632972518,
+    "RF-500": 0.019573103894711823
+  },
+  "rows": [
+    {
+      "comparison": "TabRF - MetaRF",
+      "delta_f1": 0.045474487362899385,
+      "delta_f1_ci95_low": 0.002654329733028721,
+      "delta_f1_ci95_high": 0.09080946507213075,
+      "delta_f1_bootstrap_p_two_sided": 0.042,
+      "delta_auc": 0.024632392400987357,
+      "delta_auc_ci95_low": -0.0044873287671233775,
+      "delta_auc_ci95_high": 0.05463531166480779,
+      "delta_ap": 0.016569649702728784,
+      "delta_ap_ci95_low": 0.0023708362018395133,
+      "delta_ap_ci95_high": 0.031847592342617345,
+      "mcnemar_b_a_correct_b_wrong": 16,
+      "mcnemar_c_a_wrong_b_correct": 8,
+      "mcnemar_exact_p_two_sided": 0.15158963203430176
+    },
+    {
+      "comparison": "TabRF - RF-500",
+      "delta_f1": 0.016682216831498398,
+      "delta_f1_ci95_low": -0.013838702958572735,
+      "delta_f1_ci95_high": 0.04842103167251727,
+      "delta_f1_bootstrap_p_two_sided": 0.316,
+      "delta_auc": -0.012987012987013102,
+      "delta_auc_ci95_low": -0.031674021772358577,
+      "delta_auc_ci95_high": 0.005067748036498007,
+      "delta_ap": -0.008128712083329104,
+      "delta_ap_ci95_low": -0.01742507500727194,
+      "delta_ap_ci95_high": 0.0004082779632776596,
+      "mcnemar_b_a_correct_b_wrong": 7,
+      "mcnemar_c_a_wrong_b_correct": 4,
+      "mcnemar_exact_p_two_sided": 0.548828125
+    },
+    {
+      "comparison": "RF-500 - MetaRF",
+      "delta_f1": 0.028792270531400987,
+      "delta_f1_ci95_low": -0.009175426410309802,
+      "delta_f1_ci95_high": 0.06799280240750703,
+      "delta_f1_bootstrap_p_two_sided": 0.1498,
+      "delta_auc": 0.03761940538800046,
+      "delta_auc_ci95_low": 0.012739966235031928,
+      "delta_auc_ci95_high": 0.0635151980874317,
+      "delta_ap": 0.024698361786057887,
+      "delta_ap_ci95_low": 0.01200278373890747,
+      "delta_ap_ci95_high": 0.0390481918721196,
+      "mcnemar_b_a_correct_b_wrong": 12,
+      "mcnemar_c_a_wrong_b_correct": 7,
+      "mcnemar_exact_p_two_sided": 0.359283447265625
+    }
+  ]
+}
