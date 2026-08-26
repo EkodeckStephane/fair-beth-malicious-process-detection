@@ -13,7 +13,7 @@ The manifest excludes itself to avoid a self-referential digest. Binary model ch
 | `.github/workflows/revision-experiments.yml` | `74c6565e72abee592a1a9871a94ca07d1c8180ac058cb65ec46050f6ded62e4d` |
 | `.github/workflows/revision-manifest.yml` | `3cc976cff6a6af93c25b294c2b56c33a27f3f726aee393bb042ab7cf021763c2` |
 | `.github/workflows/revision-secondary-robustness.yml` | `0216a720417a5ae2d530037b57a5fd1dea2ec7280f2791296c85d1488f229398` |
-| `README.md` | `85a3ee9f2a923292d56f8174b90189dc0d90528e1015400755a9ae6b070146ef` |
+| `README.md` | `7d7435d944e57aa09ca439da5d47befa78ae3fdc3ca61780ae1f315c5369b398` |
 | `requirements.txt` | `6ab89df4d8ab37c6accc3cef062538e63e16e76e49c2cab39ebe1a429a9d9f2f` |
 | `results/beth_limit_lifting/beth_cost_curve_all_thresholds.csv` | `718032d1a96f79ce8b04eb1d070c245d0bea4d2580695eb975ba34d7824f6fe1` |
 | `results/beth_limit_lifting/beth_cost_optimal_thresholds.csv` | `534043376b7821ff64e4797d4ea00f3fc090fdb59784c3396a331596322b95a6` |
@@ -31,6 +31,8 @@ The manifest excludes itself to avoid a self-referential digest. Binary model ch
 | `results/canonical/dns_schema_comparison.csv` | `035c26697241fa2e857d3c685b42bce45138d1765ae815f2852d691c00afb55d` |
 | `results/canonical/host_overlap.csv` | `e9fbdd0de478104afb7ccbb5654b93752f3a3500374f52dcc52cda574bc086ed` |
 | `results/canonical/main_results.csv` | `f81f44ce97a6f582f25777b3ede1732626aa82b27d8948982e4c635d7a341637` |
+| `results/canonical/matched_prefix_results.csv` | `3c0fc047397d6eafa9461f943b6496afb1bfe26357c2e007e5594890f11a312e` |
+| `results/canonical/matched_secondary_robustness.csv` | `f74df7a409d6742f6f6d290fd6e4e699f26defcbd7081f9e7dab2b41e4cc96f0` |
 | `results/canonical/paired_comparisons.csv` | `5ecdd35d5d04f1c4662feeb2ae0e07031c670072fdeaf40882b48d707c9fca96` |
 | `results/canonical/sequence_ablation.csv` | `7343c1da9892a1e68e109c8369e17ade7c132d95757119e414293a2db9e9eb1b` |
 | `results/canonical/supplementary_sensitivity.csv` | `1ceed8f3bc8313704d75ef5032f3327cfbe419e6ede11f191badd6666f7b87d1` |
@@ -49,6 +51,12 @@ The manifest excludes itself to avoid a self-referential digest. Binary model ch
 | `results/revision_audits/dataset_inventory.csv` | `c799c5abf483647f6f97c1c25be1283e65aa507be4821f7a1acbc207bd84dcc6` |
 | `results/revision_audits/dns_schema_comparison.csv` | `035c26697241fa2e857d3c685b42bce45138d1765ae815f2852d691c00afb55d` |
 | `results/revision_audits/host_overlap.csv` | `e9fbdd0de478104afb7ccbb5654b93752f3a3500374f52dcc52cda574bc086ed` |
+| `results/revision_audits/matched_secondary_robustness/inventory.json` | `518f3b6f9d278215b77f3bcacc141e3f3cc84980c5183621fb143cc3b9dd25ca` |
+| `results/revision_audits/matched_secondary_robustness/matched_prefix_results.csv` | `3c0fc047397d6eafa9461f943b6496afb1bfe26357c2e007e5594890f11a312e` |
+| `results/revision_audits/matched_secondary_robustness/matched_repeated_threshold_summary.json` | `cdfd6d81e7362d0d0beaf4edc19261fb595b13e0cd19c1f7c1427f3b9de8861c` |
+| `results/revision_audits/matched_secondary_robustness/matched_repeated_thresholds.csv` | `941ff131acfdc927ce9aeb7ee5fa1f239879a70f35dcfd600fc4e21b2cbfffae` |
+| `results/revision_audits/matched_secondary_robustness/matched_split_robustness_runs.csv` | `bdb974f472fd275fdef2e1979b7abd85d033581accc5fde7287afd2aedb07018` |
+| `results/revision_audits/matched_secondary_robustness/matched_split_robustness_summary.csv` | `6686263d0c77d44a9d6f726b5032822d41255f48359d9802b1b3078ecdf73291` |
 | `results/revision_audits/matched_tuning_cv.csv` | `5c126e04eb768539697c391593e3c7fdf89b40844a0ead286f9a71b122768051` |
 | `results/revision_audits/matched_tuning_lock.json` | `2ae6bf49c8a73745d1c0d9188a64c3a95a9c73ce50fd2fc3e854aaa12036f23a` |
 | `results/revision_audits/matched_tuning_summary.csv` | `2e85a32e3c1cf3423e2cfe83615ad3fb2ddd4917bd8271b33e465b91331d15a4` |
