@@ -77,6 +77,7 @@ The manifest excludes itself to avoid a self-referential digest. Binary model ch
 | `scripts/generate_mitre_map.py` | `34d8fc894512c88508b41f6f339dcad58344f72255052d8d62571f903c0368bd` |
 | `scripts/malbehavd_temporal_audit_full.py` | `7583e59ff61606761b095b3077d4afac990aa8483ea7e49f978409b7444ad09f` |
 | `scripts/matched_hyperparameter_tuning.py` | `9823cc9c66f4d4b9ada4ae8150c8d4045e07e429ab8d0c8a978e16496759539d` |
+| `scripts/matched_secondary_robustness.py` | `ae7ae297a96ec007695eb9ec0a40f0595ef159b3f1aeb6a0a3f214df915171df` |
 | `scripts/paired_comparison_audit.py` | `a2e3889597a2531a05c35dcbaa8988d9d677f2a4f1670bcb1b22cb6d579fcd0c` |
 | `scripts/preprocessing_v2.py` | `be737b9a8d4f98c60d1fdc3ef2dd67f1a0cf719a2bbe98e90c659345ede18c29` |
 | `scripts/revision_dataset_audit.py` | `0ec401e7545de9cf2f832d27293903b4342d6fe445a04331f5e82a2417c3f905` |
