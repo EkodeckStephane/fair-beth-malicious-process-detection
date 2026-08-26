@@ -1,0 +1,24 @@
+{
+  "development_n": 5819,
+  "development_positives": 29,
+  "folds": 50,
+  "validation_positives_per_fold": [
+    5,
+    6
+  ],
+  "threshold_median": 0.022982835561789025,
+  "threshold_q1": 0.020233823160671877,
+  "threshold_q3": 0.027804142025984382,
+  "threshold_min": 0.016337116470395534,
+  "threshold_max": 0.050921260130645185,
+  "test_AUC": 0.7724589460126652,
+  "test_AP": 0.8466605022435418,
+  "test_Precision": 0.8,
+  "test_Recall": 0.6942148760330579,
+  "test_F1": 0.7433628318584071,
+  "test_TN": 56,
+  "test_FP": 21,
+  "test_FN": 37,
+  "test_TP": 84,
+  "test_FPR": 0.2727272727272727
+}
