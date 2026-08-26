@@ -1,0 +1,167 @@
+{
+  "best": {
+    "ExtraTrees": {
+      "candidate": 2,
+      "cv_mean_ap": 0.5048998789952737,
+      "cv_std_ap": 0.2172794956168514,
+      "family": "ExtraTrees",
+      "params": {
+        "max_depth": null,
+        "max_features": null,
+        "min_samples_leaf": 2,
+        "n_estimators": 500
+      }
+    },
+    "GradientBoosting": {
+      "candidate": 5,
+      "cv_mean_ap": 0.3997767835607048,
+      "cv_std_ap": 0.2841377865460769,
+      "family": "GradientBoosting",
+      "params": {
+        "learning_rate": 0.03,
+        "max_depth": 3,
+        "min_samples_leaf": 4,
+        "n_estimators": 350,
+        "subsample": 1.0
+      }
+    },
+    "HistGradientBoosting": {
+      "candidate": 6,
+      "cv_mean_ap": 0.3985786304330959,
+      "cv_std_ap": 0.21580350240157706,
+      "family": "HistGradientBoosting",
+      "params": {
+        "l2_regularization": 0.1,
+        "learning_rate": 0.03,
+        "max_iter": 350,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20
+      }
+    },
+    "LogReg": {
+      "candidate": 9,
+      "cv_mean_ap": 0.3066148299259135,
+      "cv_std_ap": 0.24649547507158093,
+      "family": "LogReg",
+      "params": {
+        "C": 1.0,
+        "penalty": "l1"
+      }
+    },
+    "MLP": {
+      "candidate": 10,
+      "cv_mean_ap": 0.393799982657416,
+      "cv_std_ap": 0.2524825927841668,
+      "family": "MLP",
+      "params": {
+        "activation": "tanh",
+        "alpha": 0.001,
+        "hidden_layer_sizes": [
+          96,
+          48
+        ],
+        "learning_rate_init": 0.003
+      }
+    },
+    "MetaRF": {
+      "candidate": 8,
+      "cv_mean_ap": 0.4557685030827446,
+      "cv_std_ap": 0.2068183091634701,
+      "family": "RF",
+      "params": {
+        "max_depth": 16,
+        "max_features": "sqrt",
+        "min_samples_leaf": 1,
+        "n_estimators": 500
+      }
+    },
+    "ScoreRF": {
+      "candidate": 1,
+      "cv_mean_ap": 0.12311893298997006,
+      "cv_std_ap": 0.12666819315408315,
+      "family": "RF",
+      "params": {
+        "max_depth": null,
+        "max_features": "sqrt",
+        "min_samples_leaf": 2,
+        "n_estimators": 350
+      }
+    },
+    "TabRF": {
+      "candidate": 1,
+      "cv_mean_ap": 0.523139159103013,
+      "cv_std_ap": 0.29392867885884744,
+      "family": "RF",
+      "params": {
+        "max_depth": null,
+        "max_features": "sqrt",
+        "min_samples_leaf": 2,
+        "n_estimators": 350
+      }
+    },
+    "XGBoost": {
+      "candidate": 3,
+      "cv_mean_ap": 0.4300044663355849,
+      "cv_std_ap": 0.22797158172968582,
+      "family": "XGBoost",
+      "params": {
+        "colsample_bytree": 0.8,
+        "learning_rate": 0.05,
+        "max_depth": 2,
+        "min_child_weight": 5,
+        "n_estimators": 200,
+        "reg_lambda": 5.0,
+        "subsample": 1.0
+      }
+    }
+  },
+  "cv_folds": 4,
+  "fits_per_model_family": 48,
+  "fpr_budget": 0.05,
+  "lock_sha256": "6c73ab3dc09db18b6d202edee2407a420f13532124a94a45c6f86fd37f60f498",
+  "n_candidate_configurations_per_model": 12,
+  "refit_subset": "train_data + cal_data",
+  "seed": 42,
+  "selection_metric": "average_precision",
+  "test_access": "after configuration and threshold lock",
+  "threshold_subset": "val_strat_data only",
+  "thresholds": {
+    "ExtraTrees": {
+      "val_fpr_budget": 0.00787987987987988,
+      "val_max_f1": 0.23733950285168715
+    },
+    "GradientBoosting": {
+      "val_fpr_budget": 0.0016210089065601702,
+      "val_max_f1": 0.037618147958889125
+    },
+    "HistGradientBoosting": {
+      "val_fpr_budget": 0.00023283519067165701,
+      "val_max_f1": 0.024930817213648485
+    },
+    "LogReg": {
+      "val_fpr_budget": 0.8115268041347478,
+      "val_max_f1": 0.9999999974325358
+    },
+    "MLP": {
+      "val_fpr_budget": 0.9998656511306763,
+      "val_max_f1": 0.9998656511306763
+    },
+    "MetaRF": {
+      "val_fpr_budget": 0.006,
+      "val_max_f1": 0.1779805504979968
+    },
+    "ScoreRF": {
+      "val_fpr_budget": 0.0704542855142203,
+      "val_max_f1": 0.10231336727903238
+    },
+    "TabRF": {
+      "val_fpr_budget": 0.021211756485705,
+      "val_max_f1": 0.18186130661822586
+    },
+    "XGBoost": {
+      "val_fpr_budget": 0.24904930591583252,
+      "val_max_f1": 0.6185256242752075
+    }
+  },
+  "tuning_subset": "train_data only"
+}
