@@ -1,6 +1,6 @@
 # FAIR-X / FAIR-BETH Reproducibility Package
 
-This repository contains the executable code, machine-readable results, reviewer-driven audits, and integrity information for:
+This repository contains the executable code, machine-readable results, revision audits, and integrity information for:
 
 **FAIR-X: A Threshold-Transfer Evaluation Contract for Behavioral Malware Detection under Distribution Shift**
 
@@ -30,7 +30,7 @@ The implementation is in `scripts/matched_hyperparameter_tuning.py` and `scripts
 
 ## Canonical BETH results
 
-The only paper-facing matched-model performance source is `results/canonical/main_results.csv`.
+The paper-facing matched-model performance source is `results/canonical/main_results.csv`.
 
 Official BETH process-level test split, development-FPR-budget policy:
 
@@ -46,9 +46,9 @@ Official BETH process-level test split, development-FPR-budget policy:
 | LogReg | 0.754 | 0.825 | 0.897 | 0.215 | 0.347 | [0.246, 0.443] | 0.039 | 3 | 95 |
 | MLP | **0.805** | **0.849** | 0.800 | 0.033 | 0.063 | [0.015, 0.128] | 0.013 | 1 | 117 |
 
-A central diagnostic finding is therefore visible without post-test threshold optimization: **the best ranking model is not the best locked decision model**. MLP has the highest AUC/AP but detects only 4 of 121 malicious test processes at its transferred development threshold, whereas TabRF has the highest F1.
+A central diagnostic finding is visible without post-test threshold optimization: **the best ranking model is not the best locked decision model**. MLP has the highest AUC/AP but detects only 4 of 121 malicious test processes at its transferred development threshold, whereas TabRF has the highest F1.
 
-`results/canonical/paired_comparisons.csv` contains the planned paired inference. After Holm correction, TabRF's F1 advantage is significant against MLP, LogReg, ScoreRF, HistGradientBoosting, and XGBoost; the matched differences against GradientBoosting, ExtraTrees, and MetaRF are not significant at 0.05. This distinction is retained in the revised manuscript rather than converting point-estimate ordering into unsupported superiority claims.
+`results/canonical/paired_comparisons.csv` contains the planned paired inference. After Holm correction, TabRF's F1 advantage is significant against MLP, LogReg, ScoreRF, HistGradientBoosting, and XGBoost; the matched differences against GradientBoosting, ExtraTrees, and MetaRF are not significant at 0.05. Point-estimate ordering is therefore not converted into unsupported universal superiority claims.
 
 ## Dataset accounting and development-set sensitivity
 
@@ -63,13 +63,13 @@ Verified properties include:
 - the raw CSVs do not expose a semantic host-role field, so role equivalence is not asserted;
 - the enriched supplementary development source contains only **29 malicious processes**: 23 from `labelled_2021may-ip-10-100-1-105.csv` and 6 from `labelled_2021may-ip-10-100-1-4.csv`.
 
-The leave-one-supplementary-source-out audit is in `results/canonical/supplementary_sensitivity.csv`. Removing the source that supplies 23 positives reduces locked-test F1 to **0.439**; omitting the source containing the remaining 6 positives gives **0.753**. This is treated as a substantive finite-development-data limitation, not hidden by the aggregate result.
+The leave-one-supplementary-source-out analysis is in `results/canonical/supplementary_sensitivity.csv`. Removing the source that supplies 23 positives reduces locked-test F1 to **0.439**; omitting the source containing the remaining 6 positives gives **0.753**. This is treated as a substantive finite-development-data limitation, not hidden by the aggregate result.
 
-## Calibration and sequence audits
+## Calibration and sequence analyses
 
 `results/canonical/calibration_uncertainty.csv` reports calibration with **10 equal-width bins on [0,1]** and 10,000 bootstrap intervals on the 198-process official test split. Calibration is poor under the BETH shift; for TabRF, ECE is approximately **0.491** with a 95% bootstrap interval of **[0.432, 0.557]**. These quantities are diagnostics of probability transfer, not evidence that the scores are calibrated posterior risks.
 
-`results/canonical/sequence_ablation.csv` removes the earlier sequence-width ambiguity by evaluating recurrent models at the same training-derived **1,152-token** width. The results remain weak:
+`results/canonical/sequence_ablation.csv` evaluates recurrent models at the same training-derived **1,152-token** width. The results remain weak:
 
 | Model | Parameters | AUC | AP | Recall | F1 | FP | FN |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -77,23 +77,57 @@ The leave-one-supplementary-source-out audit is in `results/canonical/supplement
 | GRU-128x2 | 183,218 | 0.494 | 0.654 | 0.074 | 0.136 | 2 | 112 |
 | LSTM-128x2 | 241,074 | 0.441 | 0.601 | 0.074 | 0.136 | 2 | 112 |
 
-## Diagnostic tables
+## Matched secondary robustness
 
-The revision is intentionally driven by machine-readable sources rather than duplicated hand-entered numbers:
+The secondary analyses that directly constrain the scientific interpretation are rerun with the **same TabRF hyperparameters selected by the matched tuning protocol**. The script `scripts/matched_secondary_robustness.py` rebuilds the primary full-trace result from raw BETH CSVs and requires exact parity with `main_results.csv` before producing any secondary table.
 
-- `results/canonical/main_results.csv` — primary matched-model performance;
-- `results/canonical/paired_comparisons.csv` — paired Delta-F1, exact McNemar, Holm correction;
-- `results/canonical/diagnostic_gaps.csv` — TDG, SCG, ranking/decision separation, threshold-policy sensitivity;
-- `results/canonical/calibration_uncertainty.csv` — ECE/Brier with bootstrap intervals;
-- `results/canonical/dataset_inventory.csv`, `host_overlap.csv`, `dns_schema_comparison.csv` — raw-data accounting;
-- `results/canonical/supplementary_sensitivity.csv` — leave-one-source-out analysis;
-- `results/canonical/sequence_ablation.csv` — 1,152-token recurrent ablation.
+`results/canonical/matched_secondary_robustness.csv` contains the paper-facing summary:
 
-Files under `results/revision_audits/` are the frozen upstream audit outputs from which the canonical tables are generated.
+| Analysis | AUC | Precision | Recall | F1 | FPR | Valid runs |
+|---|---:|---:|---:|---:|---:|---:|
+| Primary matched process split | 0.759 | 0.761 | 0.686 | 0.722 | 0.338 | 1 |
+| Repeated-threshold median | 0.772 | 0.800 | 0.694 | 0.743 | 0.273 | 50 |
+| Host-disjoint median | 0.579 | 0.636 | 0.215 | 0.317 | 0.175 | 6/10 |
+| Chronological development threshold | 0.656 | 0.776 | 0.430 | 0.553 | 0.195 | 1 |
 
-## Secondary boundary analyses
+For host-disjoint analysis, four of ten attempted group splits are single-class and cannot support supervised threshold selection. Across the six valid splits, F1 ranges from **0.244 to 0.719**, with median **0.317**. This instability is part of the result: the 29 malicious development processes are strongly concentrated by host/source.
 
-Directories such as `results/beth_limit_lifting/`, `results/beth_additional_audits/`, `results/robust_threshold_validation/`, `results/sequence_capacity_ablation/`, and the MalBehavD result directories preserve additional analyses from the submitted fixed-configuration pipeline. They are useful as boundary/sensitivity evidence, but **they are not mixed into the matched model ranking**. The revised Online Resource labels this distinction explicitly.
+The repeated-threshold stress check uses 50 development-only folds with 5-6 positives per validation fold. The selected-threshold median is **0.0230** (IQR **0.0202-0.0278**); after an all-development refit the untouched official test gives F1 **0.743** and FPR **0.273**. This analysis tests threshold-estimation stability and is not a new model-ranking experiment.
+
+### Early-prefix behavior
+
+`results/canonical/matched_prefix_results.csv` retrains the TabRF representation at each BETH event prefix while keeping the matched hyperparameters fixed and selecting each threshold only on the stratified development validation fold:
+
+| BETH prefix | AUC | Precision | Recall | F1 | FPR |
+|---|---:|---:|---:|---:|---:|
+| 10 events | 0.729 | 0.813 | 0.504 | 0.622 | 0.182 |
+| 25 events | 0.741 | 0.829 | 0.521 | 0.640 | 0.169 |
+| 50 events | 0.729 | 0.886 | 0.512 | 0.649 | 0.104 |
+| 100 events | 0.728 | 0.800 | 0.661 | 0.724 | 0.260 |
+| 250 events | 0.730 | 0.816 | 0.587 | 0.683 | 0.208 |
+| Full trace | 0.759 | 0.761 | 0.686 | 0.722 | 0.338 |
+
+The result differs materially from the older fixed-model truncation audit: when prefix-specific models are fit under the matched configuration, BETH already contains usable process-level signal at short prefixes. The manuscript therefore uses these matched prefix results rather than the older fixed-model truncation table.
+
+## Canonical machine-readable tables
+
+The revision is driven by machine-readable sources rather than duplicated hand-entered numbers:
+
+- `results/canonical/main_results.csv` - primary matched-model performance;
+- `results/canonical/paired_comparisons.csv` - paired Delta-F1, exact McNemar, Holm correction;
+- `results/canonical/diagnostic_gaps.csv` - TDG, SCG, ranking/decision separation, threshold-policy sensitivity;
+- `results/canonical/calibration_uncertainty.csv` - ECE/Brier with bootstrap intervals;
+- `results/canonical/dataset_inventory.csv`, `host_overlap.csv`, `dns_schema_comparison.csv` - raw-data accounting;
+- `results/canonical/supplementary_sensitivity.csv` - leave-one-source-out analysis;
+- `results/canonical/sequence_ablation.csv` - 1,152-token recurrent ablation;
+- `results/canonical/matched_secondary_robustness.csv` - repeated-threshold, host-disjoint, and chronological robustness under the matched TabRF configuration;
+- `results/canonical/matched_prefix_results.csv` - prefix-specific BETH performance with matched TabRF hyperparameters.
+
+Files under `results/revision_audits/` are the frozen upstream outputs from which the canonical tables are generated or verified.
+
+## Other boundary analyses
+
+Directories such as `results/beth_limit_lifting/`, `results/beth_additional_audits/`, `results/robust_threshold_validation/`, and `results/sequence_capacity_ablation/` preserve earlier fixed-configuration cost, feature-space stress, attribution, and sensitivity analyses. They are retained for provenance but **are not mixed into the matched model ranking or the matched split/prefix tables**.
 
 The MalBehavD-V1 experiments test execution of the FAIR-X procedure on a second behavioral schema. They do not establish universal domain-shift generality and do not constitute direct BETH-to-MalBehavD model transfer.
 
@@ -121,7 +155,7 @@ python run_pipeline.py
 
 The revision GitHub workflows show the fully automated public-data route and exact execution order.
 
-### Reviewer-driven revision experiments
+### Revision experiments
 
 The principal scripts are:
 
@@ -132,16 +166,17 @@ python scripts/calibration_uncertainty_audit.py
 python scripts/supplementary_source_sensitivity.py
 python scripts/sequence_length_matched_ablation.py
 python scripts/build_canonical_revision_results.py
+python scripts/matched_secondary_robustness.py --help
 ```
 
-The workflows `.github/workflows/revision-data-audit.yml`, `.github/workflows/revision-experiments.yml`, and `.github/workflows/revision-canonicalize.yml` provide executable CI specifications, including public BETH retrieval.
+The workflows `.github/workflows/revision-data-audit.yml`, `.github/workflows/revision-experiments.yml`, `.github/workflows/revision-canonicalize.yml`, and `.github/workflows/revision-secondary-robustness.yml` provide executable CI specifications, including public BETH retrieval.
 
 ## Claim boundary
 
-FAIR-X supports a methodological claim about evaluation discipline: configuration selection, threshold policy, target-shift diagnostics, and test-label isolation materially affect whether a ranking model yields an operationally useful locked decision rule. The current BETH evidence supports that claim on one severe process-level shift, with explicit sparse-development and calibration limitations. The MalBehavD experiments provide second-schema procedural evidence, not proof of universal generalization.
+FAIR-X supports a methodological claim about evaluation discipline: configuration selection, threshold policy, target-shift diagnostics, and test-label isolation materially affect whether a ranking model yields an operationally useful locked decision rule. The current BETH evidence supports that claim on one severe process-level shift, with explicit sparse-development, host-concentration, and calibration limitations. The MalBehavD experiments provide second-schema procedural evidence, not proof of universal generalization.
 
 ## License and data
 
 Repository code is distributed under the included MIT `LICENSE`. BETH and MalBehavD remain governed by their original dataset licenses and distribution terms; this repository does not redistribute those raw datasets.
 
-For revision integrity, use the branch `major-revision-ijis-2026` until the revision tag is created. The final submission package will cite the immutable revision tag.
+For exact resubmission reproducibility, use the immutable Git commit cited in the manuscript. The branch `major-revision-ijis-2026` tracks the latest revision-development state and may move as documentation or manifests are finalized.
