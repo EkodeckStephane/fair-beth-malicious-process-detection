@@ -12,6 +12,7 @@ The manifest excludes itself to avoid a self-referential digest. Binary model ch
 | `.github/workflows/revision-data-audit.yml` | `a66c7d4b72feea3eaa4df86ed057dca3c549fc1b1aa29cd2e943977dfb491e20` |
 | `.github/workflows/revision-experiments.yml` | `74c6565e72abee592a1a9871a94ca07d1c8180ac058cb65ec46050f6ded62e4d` |
 | `.github/workflows/revision-manifest.yml` | `3cc976cff6a6af93c25b294c2b56c33a27f3f726aee393bb042ab7cf021763c2` |
+| `.github/workflows/revision-secondary-robustness.yml` | `0216a720417a5ae2d530037b57a5fd1dea2ec7280f2791296c85d1488f229398` |
 | `README.md` | `85a3ee9f2a923292d56f8174b90189dc0d90528e1015400755a9ae6b070146ef` |
 | `requirements.txt` | `6ab89df4d8ab37c6accc3cef062538e63e16e76e49c2cab39ebe1a429a9d9f2f` |
 | `results/beth_limit_lifting/beth_cost_curve_all_thresholds.csv` | `718032d1a96f79ce8b04eb1d070c245d0bea4d2580695eb975ba34d7824f6fe1` |
