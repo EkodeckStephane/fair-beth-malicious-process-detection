@@ -35,7 +35,7 @@ jobs:
 
       - name: Commit generated canonical tables
         run: |
-          if git diff --quiet -- results/canonical && git diff --cached --quiet; then
+          if [ -z "$(git status --porcelain -- results/canonical)" ]; then
             echo "No canonical-result changes to commit."
             exit 0
           fi
