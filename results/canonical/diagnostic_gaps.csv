@@ -1,0 +1,13 @@
+Metric,ModelA,ModelB,ValueA,ValueB,Gap,Interpretation
+TDG_F1,TabRF,MetaRF,0.7217391304347827,0.6755555555555556,0.046183574879227085,tabular-vs-meta decision gap under the same transferred FPR-budget policy
+SCG_F1,TabRF,ScoreRF,0.7217391304347827,0.4419889502762431,0.2797501801585396,tabular-vs-score decision gap under the same transferred FPR-budget policy
+RankingDecisionSeparation,MLP,TabRF,0.849479143668696,0.7217391304347827,,AP winner need not be the fixed-threshold F1 winner under transfer
+ThresholdPolicyDeltaF1,ExtraTrees,same model / val_max_f1,0.6575342465753424,0.5269461077844312,0.13058813879091125,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
+ThresholdPolicyDeltaF1,GradientBoosting,same model / val_max_f1,0.6280193236714976,0.445859872611465,0.18215945106003262,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
+ThresholdPolicyDeltaF1,HistGradientBoosting,same model / val_max_f1,0.5841584158415841,0.4052287581699346,0.17892965767164953,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
+ThresholdPolicyDeltaF1,LogReg,same model / val_max_f1,0.3466666666666667,0.032520325203252,0.3141463414634147,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
+ThresholdPolicyDeltaF1,MLP,same model / val_max_f1,0.0634920634920634,0.0634920634920634,0.0,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
+ThresholdPolicyDeltaF1,MetaRF,same model / val_max_f1,0.6755555555555556,0.5,0.17555555555555558,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
+ThresholdPolicyDeltaF1,ScoreRF,same model / val_max_f1,0.4419889502762431,0.3976608187134502,0.04432813156279286,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
+ThresholdPolicyDeltaF1,TabRF,same model / val_max_f1,0.7217391304347827,0.5269461077844312,0.19479302265035148,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
+ThresholdPolicyDeltaF1,XGBoost,same model / val_max_f1,0.6124401913875598,0.5294117647058824,0.08302842668167743,F1(val_fpr_budget) - F1(val_max_f1) on the untouched official test set
