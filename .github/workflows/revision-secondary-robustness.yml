@@ -1,0 +1,88 @@
+name: IJIS revision - matched secondary robustness
+
+on:
+  push:
+    branches: [major-revision-ijis-2026]
+    paths:
+      - 'scripts/matched_secondary_robustness.py'
+      - '.github/workflows/revision-secondary-robustness.yml'
+      - 'results/revision_audits/matched_tuning_lock.json'
+      - 'results/canonical/main_results.csv'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  matched-secondary-robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout revision branch
+        uses: actions/checkout@v4
+        with:
+          ref: major-revision-ijis-2026
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install pinned analysis environment
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy==2.2.6 pandas==2.2.3 scikit-learn==1.7.2
+
+      - name: Download official BETH archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .revision_data/beth
+          IMPERIAL='https://data.hpc.imperial.ac.uk/resolve/?doi=9422&file=4&access='
+          KAGGLE='https://www.kaggle.com/api/v1/datasets/download/katehighnam/beth-dataset'
+          if ! curl -L --fail --retry 3 --retry-delay 5 "$IMPERIAL" -o .revision_data/full_BETH_dataset.zip; then
+            echo 'Imperial archive failed; trying public Kaggle download endpoint.'
+            curl -L --fail --retry 3 --retry-delay 5 "$KAGGLE" -o .revision_data/full_BETH_dataset.zip
+          fi
+          unzip -q .revision_data/full_BETH_dataset.zip -d .revision_data/beth
+          TRAIN_FILE="$(find "$GITHUB_WORKSPACE/.revision_data/beth" -type f -name 'labelled_training_data.csv' -print -quit)"
+          if [ -z "$TRAIN_FILE" ]; then
+            echo 'Could not locate labelled_training_data.csv.' >&2
+            exit 1
+          fi
+          echo "BETH_DATA_DIR=$(dirname "$TRAIN_FILE")" >> "$GITHUB_ENV"
+
+      - name: Run matched secondary robustness analyses
+        run: |
+          python scripts/matched_secondary_robustness.py \
+            --data-dir "$BETH_DATA_DIR" \
+            --lock results/revision_audits/matched_tuning_lock.json \
+            --canonical-main results/canonical/main_results.csv \
+            --output-dir results/revision_audits/matched_secondary_robustness \
+            --canonical-dir results/canonical
+
+      - name: Upload matched robustness outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ijis-matched-secondary-robustness
+          path: |
+            results/revision_audits/matched_secondary_robustness/
+            results/canonical/matched_secondary_robustness.csv
+            results/canonical/matched_prefix_results.csv
+          if-no-files-found: error
+
+      - name: Commit text outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results/revision_audits/matched_secondary_robustness results/canonical/matched_secondary_robustness.csv results/canonical/matched_prefix_results.csv
+          if git diff --cached --quiet; then
+            echo 'No matched robustness changes to commit.'
+          else
+            git commit -m 'Add matched secondary robustness results [skip ci]'
+            git pull --rebase origin major-revision-ijis-2026
+            git push origin HEAD:major-revision-ijis-2026
+          fi

@@ -1,0 +1,117 @@
+name: IJIS revision - experimental audits
+
+on:
+  push:
+    branches:
+      - major-revision-ijis-2026
+    paths:
+      - '.github/workflows/revision-experiments.yml'
+      - 'scripts/matched_hyperparameter_tuning.py'
+      - 'scripts/calibration_uncertainty_audit.py'
+      - 'scripts/supplementary_source_sensitivity.py'
+      - 'scripts/sequence_length_matched_ablation.py'
+      - 'scripts/preprocessing_v2.py'
+      - 'scripts/detector_tabular.py'
+      - 'scripts/detector_sequence.py'
+      - 'scripts/calibration_fusion.py'
+      - 'scripts/beth_limit_lifting_analyses.py'
+      - 'scripts/config.py'
+      - 'scripts/utils.py'
+      - 'requirements.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  revision-audits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+
+    steps:
+      - name: Checkout revision branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install pinned environment
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Download official BETH archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .revision_data/beth
+          IMPERIAL='https://data.hpc.imperial.ac.uk/resolve/?doi=9422&file=4&access='
+          KAGGLE='https://www.kaggle.com/api/v1/datasets/download/katehighnam/beth-dataset'
+          if ! curl -L --fail --retry 3 --retry-delay 5 "$IMPERIAL" -o .revision_data/full_BETH_dataset.zip; then
+            echo 'Imperial archive failed; trying public Kaggle download endpoint.'
+            curl -L --fail --retry 3 --retry-delay 5 "$KAGGLE" -o .revision_data/full_BETH_dataset.zip
+          fi
+          unzip -q .revision_data/full_BETH_dataset.zip -d .revision_data/beth
+          TRAIN_FILE="$(find "$GITHUB_WORKSPACE/.revision_data/beth" -type f -name 'labelled_training_data.csv' -print -quit)"
+          if [ -z "$TRAIN_FILE" ]; then
+            echo 'Could not locate labelled_training_data.csv after extraction.' >&2
+            exit 1
+          fi
+          BETH_DIR="$(dirname "$TRAIN_FILE")"
+          echo "BETH_DATA_DIR=$BETH_DIR" >> "$GITHUB_ENV"
+          echo "FAIR_BETH_PIPELINE_OUTPUT=$GITHUB_WORKSPACE/.revision_data/pipeline_output" >> "$GITHUB_ENV"
+          echo "FAIR_BETH_REVISION_OUTPUT=$GITHUB_WORKSPACE/results/revision_audits" >> "$GITHUB_ENV"
+          echo "FAIR_BETH_SEQUENCE_MATCHED_OUTPUT=$GITHUB_WORKSPACE/results/revision_audits/sequence_length_matched" >> "$GITHUB_ENV"
+          echo "BETH data directory: $BETH_DIR"
+          find "$BETH_DIR" -maxdepth 1 -type f -name '*.csv' -printf '%f\n' | sort
+
+      - name: Rebuild frozen FAIR-BETH development artifacts
+        working-directory: scripts
+        run: |
+          python preprocessing_v2.py
+          python detector_tabular.py
+          python detector_sequence.py
+          python calibration_fusion.py
+
+      - name: Matched development-only hyperparameter tuning
+        run: python scripts/matched_hyperparameter_tuning.py
+
+      - name: Calibration uncertainty
+        run: python scripts/calibration_uncertainty_audit.py
+
+      - name: Leave-one-supplementary-file-out sensitivity
+        run: |
+          python scripts/supplementary_source_sensitivity.py \
+            --data-dir "$BETH_DATA_DIR" \
+            --output-dir "$FAIR_BETH_REVISION_OUTPUT" \
+            --tuning-lock "$FAIR_BETH_REVISION_OUTPUT/matched_tuning_lock.json"
+
+      - name: Sequence-length matched recurrent ablation
+        run: python scripts/sequence_length_matched_ablation.py
+
+      - name: Upload complete revision audit outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ijis-major-revision-experimental-audits
+          path: results/revision_audits/
+          if-no-files-found: error
+
+      - name: Commit text results to revision branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          find results/revision_audits -type f \( -name '*.csv' -o -name '*.json' \) -print0 | xargs -0 git add
+          if git diff --cached --quiet; then
+            echo 'No revision-result changes to commit.'
+          else
+            git commit -m 'Add IJIS major-revision experimental results [skip ci]'
+            git pull --rebase origin major-revision-ijis-2026
+            git push origin HEAD:major-revision-ijis-2026
+          fi

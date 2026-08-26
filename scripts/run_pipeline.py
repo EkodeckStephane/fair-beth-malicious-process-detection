@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the full experimental pipeline."""
+"""Run the base FAIR-BETH experimental pipeline."""
 import os
 import subprocess
 import sys
@@ -57,7 +57,7 @@ def main():
 
     steps.extend([
         ("Calibration and ablation fusion", "calibration_fusion.py"),
-        ("Legacy baseline RF export", "baseline_rf.py"),
+        ("Reference RF export", "baseline_rf.py"),
         ("Evaluation and figures", "evaluate.py"),
     ])
 
@@ -68,6 +68,7 @@ def main():
     print("PIPELINE COMPLETED")
     print(f"{'=' * 60}")
     print(f"Outputs: {OUTPUT_DIR}/")
+    print("Reviewer-driven matched tuning and robustness audits are run by the revision workflows/scripts.")
 
 
 if __name__ == "__main__":

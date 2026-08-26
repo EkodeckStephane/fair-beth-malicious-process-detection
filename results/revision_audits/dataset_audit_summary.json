@@ -1,0 +1,28 @@
+{
+  "csv_file_count": 15,
+  "dns_file_count": 6,
+  "non_dns_file_count": 9,
+  "official_test_hosts": [
+    "ip-10-100-1-217"
+  ],
+  "official_test_rows": 188967,
+  "official_validation_rows": 188967,
+  "supplement_evil_processes_by_file": {
+    "labelled_2021may-ip-10-100-1-105.csv": 23,
+    "labelled_2021may-ip-10-100-1-186.csv": 0,
+    "labelled_2021may-ip-10-100-1-26.csv": 0,
+    "labelled_2021may-ip-10-100-1-4.csv": 6,
+    "labelled_2021may-ip-10-100-1-95.csv": 0,
+    "labelled_2021may-ubuntu.csv": 0
+  },
+  "supplement_non_dns_files": [
+    "labelled_2021may-ip-10-100-1-105.csv",
+    "labelled_2021may-ip-10-100-1-186.csv",
+    "labelled_2021may-ip-10-100-1-26.csv",
+    "labelled_2021may-ip-10-100-1-4.csv",
+    "labelled_2021may-ip-10-100-1-95.csv",
+    "labelled_2021may-ubuntu.csv"
+  ],
+  "supplement_total_evil_processes_sum_by_file": 29,
+  "validation_and_test_row_counts_equal": true
+}

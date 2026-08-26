@@ -1,0 +1,72 @@
+name: IJIS revision - BETH data audit
+
+on:
+  push:
+    branches:
+      - major-revision-ijis-2026
+    paths:
+      - '.github/workflows/revision-data-audit.yml'
+      - 'scripts/revision_dataset_audit.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout revision branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install audit dependencies
+        run: python -m pip install --upgrade pip pandas numpy
+
+      - name: Download BETH dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .revision_data/beth
+          IMPERIAL='https://data.hpc.imperial.ac.uk/resolve/?doi=9422&file=4&access='
+          KAGGLE='https://www.kaggle.com/api/v1/datasets/download/katehighnam/beth-dataset'
+          if ! curl -L --fail --retry 3 --retry-delay 5 "$IMPERIAL" -o .revision_data/full_BETH_dataset.zip; then
+            echo 'Imperial archive failed; trying public Kaggle download endpoint.'
+            curl -L --fail --retry 3 --retry-delay 5 "$KAGGLE" -o .revision_data/full_BETH_dataset.zip
+          fi
+          unzip -q .revision_data/full_BETH_dataset.zip -d .revision_data/beth
+          echo "CSV count: $(find .revision_data/beth -type f -name '*.csv' | wc -l)"
+          find .revision_data/beth -type f -name '*.csv' -printf '%f\n' | sort
+
+      - name: Run raw-data accounting audit
+        run: |
+          python scripts/revision_dataset_audit.py \
+            --data-dir .revision_data/beth \
+            --output-dir results/revision_audits
+
+      - name: Upload audit outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: beth-revision-data-audit
+          path: results/revision_audits/
+          if-no-files-found: error
+
+      - name: Commit auditable text outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results/revision_audits/*.csv results/revision_audits/*.json
+          if git diff --cached --quiet; then
+            echo 'No audit-output changes to commit.'
+          else
+            git commit -m 'Add BETH raw-data revision audit results [skip ci]'
+            git push
+          fi

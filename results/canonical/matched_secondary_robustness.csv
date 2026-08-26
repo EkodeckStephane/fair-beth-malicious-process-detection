@@ -1,0 +1,7 @@
+analysis,detail,AUC,AP,Precision,Recall,F1,FPR,valid_runs,skipped_runs
+primary_matched_process_split,matched TabRF; train+cal fit; val-FPR threshold; official test,0.7592572716539658,0.8399884853392664,0.7614678899082569,0.6859504132231405,0.7217391304347827,0.33766233766233766,1,0
+repeated_threshold_median,50 development-only threshold folds; median threshold; all-development refit; official test,0.7724589460126652,0.8466605022435418,0.8,0.6942148760330579,0.7433628318584071,0.2727272727272727,50,0
+host_disjoint_median,matched TabRF hyperparameters; split-specific train vocabulary and validation threshold; official test,0.5792905441665772,0.6696431929908171,0.6358173076923077,0.21487603305785125,0.3172337672223491,0.17532467532467533,6,4
+host_disjoint_min,matched TabRF hyperparameters; split-specific train vocabulary and validation threshold; official test,0.39427927444456373,0.6130854162390219,0.5428571428571428,0.15702479338842976,0.24358974358974358,0.025974025974025976,6,4
+host_disjoint_max,matched TabRF hyperparameters; split-specific train vocabulary and validation threshold; official test,0.8258559622195984,0.8854100458283974,0.971830985915493,0.5702479338842975,0.71875,0.2857142857142857,6,4
+temporal_train70_val15_to_official_test,matched TabRF hyperparameters; split-specific train vocabulary and validation threshold; official test,0.6563271439304497,0.7314272600920222,0.7761194029850746,0.4297520661157025,0.5531914893617021,0.19480519480519481,1,0

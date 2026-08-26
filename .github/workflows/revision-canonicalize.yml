@@ -1,0 +1,46 @@
+name: IJIS revision - canonicalize results
+
+on:
+  push:
+    branches: [major-revision-ijis-2026]
+    paths:
+      - 'scripts/build_canonical_revision_results.py'
+      - '.github/workflows/revision-canonicalize.yml'
+      - 'results/revision_audits/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  canonicalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout revision branch
+        uses: actions/checkout@v4
+        with:
+          ref: major-revision-ijis-2026
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install analysis dependencies
+        run: python -m pip install --upgrade pip numpy==2.2.6 pandas==2.2.3
+
+      - name: Build canonical result tables
+        run: python scripts/build_canonical_revision_results.py
+
+      - name: Commit generated canonical tables
+        run: |
+          if [ -z "$(git status --porcelain -- results/canonical)" ]; then
+            echo "No canonical-result changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/canonical
+          git commit -m "Generate canonical IJIS revision result tables"
+          git push origin HEAD:major-revision-ijis-2026
