@@ -1,0 +1,50 @@
+name: IJIS revision - artifact manifest
+
+on:
+  push:
+    branches: [major-revision-ijis-2026]
+    paths:
+      - 'README.md'
+      - 'requirements.txt'
+      - 'scripts/**'
+      - 'results/canonical/**'
+      - 'results/revision_audits/**'
+      - 'results/external_malbehavd/**'
+      - 'results/external_malbehavd_temporal/**'
+      - 'results/beth_limit_lifting/**'
+      - 'results/robust_threshold_validation/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout revision branch
+        uses: actions/checkout@v4
+        with:
+          ref: major-revision-ijis-2026
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Generate SHA-256 manifest
+        run: python scripts/generate_artifact_manifest.py
+
+      - name: Commit manifest if changed
+        run: |
+          if [ -z "$(git status --porcelain -- ARTIFACT_MANIFEST.md)" ]; then
+            echo "Manifest unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ARTIFACT_MANIFEST.md
+          git commit -m "Regenerate IJIS revision artifact manifest [skip ci]"
+          git push origin HEAD:major-revision-ijis-2026
