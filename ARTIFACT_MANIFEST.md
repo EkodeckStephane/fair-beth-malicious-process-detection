@@ -10,8 +10,8 @@ The manifest excludes itself to avoid a self-referential digest. Binary model ch
 |---|---|
 | `.github/workflows/revision-canonicalize.yml` | `c232ebceec9110692905abb7dde51790c97b1d452a2c971549e7b3bd865c3877` |
 | `.github/workflows/revision-data-audit.yml` | `a66c7d4b72feea3eaa4df86ed057dca3c549fc1b1aa29cd2e943977dfb491e20` |
-| `.github/workflows/revision-experiments.yml` | `74c6565e72abee592a1a9871a94ca07d1c8180ac058cb65ec46050f6ded62e4d` |
-| `.github/workflows/revision-manifest.yml` | `3cc976cff6a6af93c25b294c2b56c33a27f3f726aee393bb042ab7cf021763c2` |
+| `.github/workflows/revision-experiments.yml` | `23b5421c0c4ac4e58b2952704dd71567c72c5d9d2da3055892119a7da2082e5a` |
+| `.github/workflows/revision-manifest.yml` | `f28ffbbeab3a5e2dd6a4c0959cf3d0e1e1f26070d5fba7a1a659b98e1e847155` |
 | `.github/workflows/revision-secondary-robustness.yml` | `0216a720417a5ae2d530037b57a5fd1dea2ec7280f2791296c85d1488f229398` |
 | `README.md` | `7d7435d944e57aa09ca439da5d47befa78ae3fdc3ca61780ae1f315c5369b398` |
 | `requirements.txt` | `6ab89df4d8ab37c6accc3cef062538e63e16e76e49c2cab39ebe1a429a9d9f2f` |
